@@ -16,21 +16,24 @@
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-cover bg-center"
-            style="background-image: linear-gradient(to right, rgba(34,197,94,0.6), rgba(34,197,94,0)), url('{{ asset('image/bg-laundry.jpg') }}')">
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
+            style="background-image: linear-gradient(to right, rgba(169, 201, 125, 0.85), rgba(169, 201, 125, 0) 70%), url('{{ asset('image/bg-laundry.jpg') }}')">
+            
+            <div class="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+
+            <div class="relative w-full sm:max-w-md mt-6 px-6 py-4 shadow-md overflow-hidden sm:rounded-lg" 
+                style="background-color: #A9C97D;">
                 <div class="flex justify-center">
-                    <a href="/">
+                    <a>
                         <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
                     </a>
                 </div>
                 <div class="flex justify-center mb-4">
-                    <p class="mt-2 text-lg font-semibold text-gray-700 dark:text-gray-200">
+                    <p class="mt-2 text-lg font-semibold text-gray-700">
                         Laundry Time
                     </p>
                 </div>
                 {{ $slot }}
             </div>
-
         </div>
 
     </body>

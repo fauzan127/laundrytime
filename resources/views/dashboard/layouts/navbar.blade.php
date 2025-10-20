@@ -31,7 +31,7 @@
             </button>
             <div x-show="isOpen" @click.away="isOpen = false" class="absolute right-0 z-10 mt-2 w-48 bg-white rounded-md shadow-lg">
               <div class="" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
-                <a href="{{ route('profile.edit') }}" class="w-full text-center px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-700 rounded-lg">
+                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 rounded-lg">
                   Profil
                 </a>
                 <form action="{{ route('logout') }}" method="POST" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-600 rounded-lg">
