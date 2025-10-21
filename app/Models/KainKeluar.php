@@ -5,25 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Order extends Model
+class KainKeluar extends Model
 {
     use HasFactory;
 
     protected $table = 'orders';
-
     protected $fillable = [
         'nama_pelanggan',
         'no_hp',
         'layanan',
         'berat',
-        'status',
-        'jenis_pengantaran',
-        'alamat',
-        'catatan'
+        'status', // Pastikan ini sesuai dengan kolom di database
+        'created_at',
     ];
 
-    protected $casts = [
-        'created_at' => 'datetime',
-        'berat' => 'float'
-    ];
+    public $timestamps = false;
 }

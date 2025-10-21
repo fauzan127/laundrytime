@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>Dashboard Kain Keluar</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
@@ -105,18 +106,25 @@
   <tr>
     <td class="px-4 py-2 border">{{ $item->id }}</td>
     <td class="px-4 py-2 border">{{ $item->nama_pelanggan }}</td>
-    <td class="px-4 py-2 border">{{ $item->no_hp_pelanggan }}</td>
+    <td class="px-4 py-2 border">{{ $item->no_hp }}</td>
     <td class="px-4 py-2 border">{{ $item->layanan }}</td>
-    <td class="px-4 py-2 border">{{ $item->berat_kg }}</td>
-    <td class="px-4 py-2 border">{{ $item->status_layanan }}</td>
-    <td class="px-4 py-2 border">{{ $item->tanggal_masuk }}</td>
+    <td class="px-4 py-2 border">{{ $item->berat ? number_format($item->berat, 2) . ' kg' : '-'}}</td>
     <td class="px-4 py-2 border text-center">
-      <a href="{{ route('detail_keluar.show', $item->id) }}" 
-         class="bg-[#35623E] hover:bg-[#2b4d31] text-white p-2 rounded-md inline-flex items-center justify-center transition-all"
-         title="Lihat Detail">
-        <span class="material-icons-outlined text-base">visibility</span>
-      </a>
+      <select class="status-dropdown" data-order-id="{{ $item->id }}">
+            <option value="Pending" {{ $item->status == 'Pending' ? 'selected' : '' }}>Pending</option>
+            <option value="Diproses" {{ $item->status == 'Diproses' ? 'selected' : '' }}>Diproses</option>
+            <option value="Sampai Tujuan" {{ $item->status == 'Sampai Tujuan' ? 'selected' : '' }}>Sampai Tujuan</option>
+            <option value="Antar" {{ $item->status == 'Antar' ? 'selected' : '' }}>Pengantaran</option>
+        </select>
     </td>
+    <td class="px-4 py-2 border">{{ $item->created_at }}</td>
+    <td class="px-4 py-2 border text-center">
+  <a href="{{ route('detailkainkeluar', ['id' => $item->id]) }}" 
+     class="bg-[#35623E] hover:bg-[#2b4d31] text-white p-2 rounded-md inline-flex items-center justify-center transition-all"
+     title="Lihat Detail">
+    <span class="material-icons-outlined text-base">visibility</span>
+  </a>
+</td>
   </tr>
   @endforeach
 </tbody>
@@ -136,10 +144,7 @@
     <div id="info-pesanan-detail" class="text-gray-800 text-base leading-relaxed space-y-1"></div>
     </main>
 </body>
-
 <script>
-document.addEventListener("DOMContentLoaded", loadDataTransaksi);
-
 const sidebar = document.getElementById('sidebar');
 const toggleBtn = document.getElementById('toggleBtn');
 const sidebarTexts = document.querySelectorAll('.sidebar-text');
@@ -150,105 +155,273 @@ const navItems = document.querySelectorAll('.nav-item');
 const tbodyTransaksi = document.getElementById('data-transaksi');
 const searchInput = document.getElementById('searchInput');
 
-// --- FUNGSI CUSTOM MODAL (pengganti alert) ---
-function showCustomModal(title, message) {
-  const modal = document.getElementById('custom-modal');
-  document.getElementById('modal-title').textContent = title;
-  document.getElementById('modal-message').textContent = message;
-  modal.classList.remove('hidden');
-  document.getElementById('modal-close-btn').onclick = () => {
-    modal.classList.add('hidden');
-  };
+// Variabel global untuk pagination
+let currentPage = 1;
+let rowsPerPage = 10;
+let allData = [];
+
+// --- FUNGSI UPDATE STATUS ---
+async function updateStatus(orderId, newStatus) {
+    console.log('🔄 Mengupdate status:', { orderId, newStatus });
+    
+    try {
+        if (!confirm(`Yakin ingin mengubah status pesanan ID ${orderId} menjadi "${newStatus}"?`)) {
+            // Reset dropdown ke nilai semula dengan reload data
+            loadDataTransaksi();
+            return;
+        }
+
+        const response = await fetch('/api/update-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                order_id: orderId,
+                status: newStatus
+            })
+        });
+
+        console.log('📡 Response status:', response.status);
+        
+        const result = await response.json();
+        console.log('📡 Response data:', result);
+
+        if (result.success) {
+            alert(`✅ Status pesanan ID ${orderId} berhasil diubah menjadi: ${newStatus}`);
+            // Refresh data setelah update berhasil
+            setTimeout(() => loadDataTransaksi(), 500);
+        } else {
+            alert(`❌ Gagal mengupdate status: ${result.message}`);
+            // Reset data jika gagal
+            loadDataTransaksi();
+        }
+    } catch (error) {
+        console.error('❌ Error:', error);
+        alert('❌ Terjadi kesalahan saat mengupdate status');
+        // Reset data jika error
+        loadDataTransaksi();
+    }
 }
 
-// --- FUNGSI UPDATE STATUS (Simulasi) ---
-function updateStatus(id, newStatus) {
-  console.log(`Mengupdate ID ${id} menjadi status: ${newStatus}`);
-  showCustomModal('Update Status', `Status ID: ${id} telah diubah menjadi: ${newStatus}.`);
+// --- FUNGSI UNTUK DROPDOWN DI BLADE TEMPLATE ---
+function initializeDropdowns() {
+    // Event listener untuk semua dropdown status yang ada di blade template
+    document.querySelectorAll('.status-dropdown').forEach(dropdown => {
+        dropdown.addEventListener('change', function() {
+            const orderId = this.getAttribute('data-order-id');
+            const newStatus = this.value;
+            console.log('📝 Dropdown changed:', { orderId, newStatus });
+            updateStatus(orderId, newStatus);
+        });
+    });
 }
 
-// --- FUNGSI UTAMA: MUAT DATA + PAGINATION ---
-async function loadDataTransaksi() {
-  const API_URL_TRANSAKSI = '/api/kainkeluar/list';
-  try {
-    tbodyTransaksi.innerHTML = `
-      <tr>
-        <td colspan="8" class="text-center py-4 text-gray-500">
-          Memuat data transaksi...
-        </td>
-      </tr>`;
+// --- FUNGSI PENCARIAN ---
+function handleSearch() {
+    const searchTerm = searchInput.value.toLowerCase();
+    
+    if (searchTerm === '') {
+        renderTablePage(currentPage, allData);
+        return;
+    }
 
-    const response = await fetch(API_URL_TRANSAKSI);
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const filteredData = allData.filter(row => 
+        (row.nama_pelanggan || '').toLowerCase().includes(searchTerm) ||
+        (row.no_hp || '').toLowerCase().includes(searchTerm) ||
+        (row.layanan || '').toLowerCase().includes(searchTerm) ||
+        (row.status || '').toLowerCase().includes(searchTerm)
+    );
 
-    const data = await response.json();
+    currentPage = 1;
+    renderTablePage(currentPage, filteredData);
+}
+
+// --- FUNGSI RENDER TABEL ---
+function renderTablePage(page, data = allData) {
     tbodyTransaksi.innerHTML = '';
-
+    
     if (data.length === 0) {
-      tbodyTransaksi.innerHTML = `
-        <tr><td colspan="8" class="text-center py-4 text-gray-500">
-          Tidak ada data transaksi ditemukan.
-        </td></tr>`;
-      return;
+        tbodyTransaksi.innerHTML = `
+        <tr>
+            <td colspan="8" class="text-center py-4 text-gray-500">
+            Tidak ada data transaksi ditemukan.
+            </td>
+        </tr>`;
+        renderPagination(data);
+        return;
     }
 
-    // Pagination
-    const rowsPerPage = 10;
-    let currentPage = 1;
     const totalPages = Math.ceil(data.length / rowsPerPage);
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    const pageData = data.slice(start, end);
 
-    function renderTablePage(page) {
-      tbodyTransaksi.innerHTML = '';
-      const start = (page - 1) * rowsPerPage;
-      const end = start + rowsPerPage;
-      const pageData = data.slice(start, end);
-
-      pageData.forEach((row, index) => {
+    pageData.forEach((row, index) => {
         const tr = document.createElement('tr');
-        const statusOptions = ['Diproses', 'Siap antar', 'Pengantaran', 'Sampai Tujuan'];
+        const statusOptions = ['Pending', 'Diproses', 'Antar', 'Sampai Tujuan'];
+        
+        // Generate options untuk dropdown
         const optionsHtml = statusOptions
-          .map(s => `<option value="${s}" ${row.status_layanan === s ? 'selected' : ''}>${s}</option>`)
-          .join('');
+        .map(status => 
+            `<option value="${status}" ${row.status === status ? 'selected' : ''}>${status}</option>`
+        )
+        .join('');
+        
         tr.innerHTML = `
-          <td class="border px-4 py-2">${start + index + 1}</td>
-          <td class="border px-4 py-2">${row.nama_pelanggan}</td>
-          <td class="border px-4 py-2">${row.no_hp_pelanggan}</td>
-          <td class="border px-4 py-2">${row.layanan}</td>
-          <td class="border px-4 py-2">${parseFloat(row.berat_kg).toFixed(2)} kg</td>
-          <td class="border px-4 py-2">
-            <select onchange="updateStatus(${row.id}, this.value)">
-              ${optionsHtml}
+        <td class="border px-4 py-2">${start + index + 1}</td>
+        <td class="border px-4 py-2">${row.nama_pelanggan || row.nama}</td>
+        <td class="border px-4 py-2">${row.no_hp}</td>
+        <td class="border px-4 py-2">${row.layanan}</td>
+        <td class="border px-4 py-2">${parseFloat(row.berat).toFixed(2)} kg</td>
+        <td class="px-4 py-2 border">
+            <select class="status-dropdown w-full px-2 py-1 border rounded text-sm" data-order-id="${row.id}">
+            ${optionsHtml}
             </select>
-          </td>
-          <td class="border px-4 py-2">${row.tanggal_masuk}</td>
-          <td class="border px-4 py-2 text-center">
-            <a href="/detailkainkeluar/${row.id}" class="text-black">
-              <span class="material-icons-outlined">visibility</span>
+        </td>
+        <td class="border px-4 py-2">${formatDate(row.created_at)}</td>
+        <td class="border px-4 py-2 text-center">
+            <a href="/detailkainkeluar/${row.id}" class="text-black hover:text-blue-600 transition-colors">
+            <span class="material-icons-outlined text-lg">visibility</span>
             </a>
-          </td>`;
+        </td>`;
         tbodyTransaksi.appendChild(tr);
-      });
+    });
 
-      renderPagination();
+    // Inisialisasi dropdown setelah render
+    initializeDropdowns();
+    renderPagination(data);
+}
+
+// Fungsi format tanggal
+function formatDate(dateString) {
+    if (!dateString) return '-';
+    
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).replace(',', '');
+    } catch (e) {
+        return dateString;
     }
+}
 
-    function renderPagination() {
-      const container = document.getElementById('pagination-container');
-      container.innerHTML = `
-        <button ${currentPage === 1 ? 'disabled' : ''} onclick="currentPage--; renderTablePage(currentPage)">Prev</button>
-        <span>${currentPage} / ${totalPages}</span>
-        <button ${currentPage === totalPages ? 'disabled' : ''} onclick="currentPage++; renderTablePage(currentPage)">Next</button>
-      `;
+// --- FUNGSI PAGINATION ---
+function renderPagination(data = allData) {
+    const container = document.getElementById('pagination-container');
+    const totalPages = Math.ceil(data.length / rowsPerPage);
+    
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
     }
+    
+    container.innerHTML = `
+    <div class="flex items-center justify-center space-x-4 mt-4">
+        <button 
+        ${currentPage === 1 ? 'disabled' : ''} 
+        onclick="changePage(${currentPage - 1})"
+        class="px-4 py-2 bg-gray-200 rounded ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300'}"
+        >
+        Prev
+        </button>
+        <span class="px-4 py-2">${currentPage} / ${totalPages}</span>
+        <button 
+        ${currentPage === totalPages ? 'disabled' : ''} 
+        onclick="changePage(${currentPage + 1})"
+        class="px-4 py-2 bg-gray-200 rounded ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300'}"
+        >
+        Next
+        </button>
+    </div>
+    `;
+}
 
-    renderTablePage(currentPage);
+function changePage(page) {
+    if (page < 1 || page > Math.ceil(allData.length / rowsPerPage)) return;
+    currentPage = page;
+    renderTablePage(currentPage, allData);
+}
 
-  } catch (error) {
-    tbodyTransaksi.innerHTML = `
-      <tr><td colspan="8" class="text-center text-red-600">Error: ${error.message}</td></tr>`;
-  }
-} // <-- Jangan lupa ini penutup function
+// --- FUNGSI UTAMA: MUAT DATA ---
+async function loadDataTransaksi() {
+    const API_URL_TRANSAKSI = '/api/kainkeluar/list';
+    
+    try {
+        tbodyTransaksi.innerHTML = `
+        <tr>
+            <td colspan="8" class="text-center py-4 text-gray-500">
+            <div class="flex justify-center items-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span class="ml-2">Memuat data transaksi...</span>
+            </div>
+            </td>
+        </tr>`;
 
+        const response = await fetch(API_URL_TRANSAKSI);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const data = await response.json();
+        
+        console.log('📊 Data loaded:', data);
+        
+        // Balik urutan data
+        allData = data.reverse();
+        currentPage = 1;
+
+        if (allData.length === 0) {
+            tbodyTransaksi.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4 text-gray-500">
+                Tidak ada data transaksi ditemukan.
+                </td>
+            </tr>`;
+            return;
+        }
+
+        renderTablePage(currentPage, allData);
+
+    } catch (error) {
+        console.error('Error loading data:', error);
+        tbodyTransaksi.innerHTML = `
+        <tr>
+            <td colspan="8" class="text-center text-red-600 py-4">
+            Error: ${error.message}
+            </td>
+        </tr>`;
+    }
+}
+
+// Event listener untuk pencarian
+if (searchInput) {
+    searchInput.addEventListener('input', handleSearch);
+}
+
+// Event listener untuk enter di search
+if (searchInput) {
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    });
+}
+
+// Inisialisasi saat DOM siap
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DOM Loaded, initializing...');
+    
+    // Inisialisasi dropdown yang sudah ada di blade template
+    initializeDropdowns();
+    
+    // Load data untuk bagian yang menggunakan JavaScript
+    loadDataTransaksi();
+});
 </script>
 
 </body>
