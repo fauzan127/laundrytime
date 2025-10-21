@@ -7,18 +7,43 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     protected $fillable = [
-        'nama_pelanggan',
-        'no_hp',
-        'layanan',
-        'jenis_pengantaran',
-        'alamat',
-        'catatan',
+        'order_number',
+        'customer_name',
+        'customer_phone',
         'status',
-        'berat',
+        'delivery_type',
+        'address',
+        'pickup_time',
+        'pickup_date',
+        'total_price',
+        'notes',
+        'order_date',
+        'user_id'
     ];
 
     protected $casts = [
-        'layanan' => 'array',
-        'berat' => 'decimal:2',
+        'total_price' => 'decimal:2',
+        'order_date' => 'datetime',
+        'pickup_date' => 'date',
+        'pickup_time' => 'datetime'
     ];
+
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($order) {
+            $order->order_number = 'ORD-' . date('Ymd') . '-' . str_pad(Order::whereDate('created_at', today())->count() + 1, 4, '0', STR_PAD_LEFT);
+        });
+    }
 }
