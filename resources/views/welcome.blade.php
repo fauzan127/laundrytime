@@ -51,7 +51,7 @@
   <section id="home" 
     class="relative flex flex-col md:flex-row items-center justify-center md:justify-between 
     px-6 md:px-16 pt-56 md:pt-64 pb-48 md:pb-56 mt-[100px] text-white bg-cover bg-center bg-no-repeat"
-    style="background-image: url('{{ asset('images/landingpage.png') }}'); background-position: center top;">
+    style="background-image: url('{{ asset('image/landingpage.png') }}'); background-position: center top;">
     <div class="absolute inset-0 bg-gradient-to-b from-[#CCE1B8]/0 via-[#CCE0C9]/43 to-[#CBDFE0]/100"></div>
 
     <div class="relative z-10 max-w-xl text-center md:text-left">
@@ -72,7 +72,7 @@
   <!-- Kenapa Time Laundry -->
   <section id="kenapa" class="py-20 flex flex-col md:flex-row items-center justify-center px-6 md:px-16 bg-gradient-to-b from-[#CBDFE0] to-[#9EC37D]">
     <div class="flex-shrink-0">
-      <img src="{{ asset('images/baju.png') }}" alt="Baju Time Laundry"
+      <img src="{{ asset('image/baju.png') }}" alt="Baju Time Laundry"
            class="w-64 md:w-80 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300">
     </div>
     <div class="mt-8 md:mt-0 md:ml-12 max-w-xl text-center md:text-left">
@@ -168,22 +168,22 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         <div class="bg-white shadow-md rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300">
-          <img src="/images/setrika.png" alt="Cuci Setrika" class="w-full h-48 object-cover">
+          <img src="/image/setrika.png" alt="Cuci Setrika" class="w-full h-48 object-cover">
           <p class="text-center font-semibold text-gray-800 py-4 text-lg">Cuci + Setrika</p>
         </div>
 
         <div class="bg-white shadow-md rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300">
-          <img src="/images/celana.png" alt="Cuci Lipat" class="w-full h-48 object-cover">
+          <img src="/image/celana.png" alt="Cuci Lipat" class="w-full h-48 object-cover">
           <p class="text-center font-semibold text-gray-800 py-4 text-lg">Cuci Lipat</p>
         </div>
 
         <div class="bg-white shadow-md rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300">
-          <img src="/images/dryclean.png" alt="Dry Cleaning" class="w-full h-48 object-cover">
+          <img src="/image/dryclean.png" alt="Dry Cleaning" class="w-full h-48 object-cover">
           <p class="text-center font-semibold text-gray-800 py-4 text-lg">Dry Cleaning</p>
         </div>
 
         <div class="bg-white shadow-md rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300">
-          <img src="/images/mesincuci.png" alt="Express Service" class="w-full h-48 object-cover">
+          <img src="/image/mesincuci.png" alt="Express Service" class="w-full h-48 object-cover">
           <p class="text-center font-semibold text-gray-800 py-4 text-lg">Express Service</p>
         </div>
       </div>
