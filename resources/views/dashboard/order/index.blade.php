@@ -10,11 +10,11 @@
         <thead>
             <tr class="bg-gray-100">
                 <th class="p-2 border">No</th>
+                <th class="p-2 border">Order Number</th>
                 <th class="p-2 border">Nama Pelanggan</th>
-                <th class="p-2 border">Jenis Layanan</th>
                 <th class="p-2 border">Jenis Pengantaran</th>
                 <th class="p-2 border">Status</th>
-                <th class="p-2 border">Berat</th>
+                <th class="p-2 border">Total Harga</th>
                 @if(Auth::check() && Auth::user()->role === 'admin')
                 <th class="p-2 border">Aksi</th>
                 @endif
@@ -24,12 +24,12 @@
             @forelse ($orders as $order )
             <tr class="">
                 <td class="p-2 border">{{ $loop->iteration }}</td>
-                <td class="p-2 border">{{ $order->nama_pelanggan }}</td>
-                <td class="p-2 border">{{ is_array($order->layanan) ? implode(', ', $order->layanan) : $order->layanan }}</td>
+                <td class="p-2 border">{{ $order->order_number }}</td>
+                <td class="p-2 border">{{ $order->customer_name }}</td>
                 <td class="p-2 border">
-                            @if($order->jenis_pengantaran == 'antar_jemput')
+                            @if($order->delivery_type == 'antar_jemput')
                                 Antar Jemput
-                            @elseif($order->jenis_pengantaran == 'pengantaran_pribadi')
+                            @elseif($order->delivery_type == 'pengantaran_pribadi')
                                 Pengantaran Pribadi
                             @else
                                 -
@@ -37,14 +37,14 @@
                 </td>
                 <td class="p-2 border">
                             <span class="px-2 py-1 text-xs font-semibold rounded
-                                @if($order->status == 'Pending') bg-yellow-200 text-yellow-800 
-                                @elseif($order->status == 'Proses') bg-blue-200 text-blue-800 
-                                @elseif($order->status == 'Selesai') bg-green-200 text-green-800 
+                                @if($order->status == 'pending') bg-yellow-200 text-yellow-800 
+                                @elseif($order->status == 'processing') bg-blue-200 text-blue-800 
+                                @elseif($order->status == 'completed') bg-green-200 text-green-800 
                                 @else bg-gray-200 text-gray-700 @endif">
                                 {{ ucfirst($order->status) }}
                             </span>
                 </td>
-                <td class="p-2 border">3,2 kg</td>
+                <td class="p-2 border">Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>
                 @if(Auth::check() && Auth::user()->role === 'admin')
                 <td class="p-2 border space-x-2 flex items-center justify-center">
                     <a href="{{ route('order.edit', $order->id) }}" class="text-yellow-600">Edit</a>
@@ -58,7 +58,7 @@
             </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="text-center text-gray-500 py-6">Belum ada pesanan.</td>
+                    <td colspan="7" class="text-center text-gray-500 py-6">Belum ada pesanan.</td>
                 </tr>
             @endforelse
         </tbody>

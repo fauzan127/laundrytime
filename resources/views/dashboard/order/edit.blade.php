@@ -7,7 +7,7 @@
     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
         <!-- Header -->
         <div class="bg-green-700 text-white text-center py-4">
-            <h1 class="text-xl font-bold">Edit Order #{{ $order->id }}</h1>
+            <h1 class="text-xl font-bold">Edit Order #{{ $order->order_number }}</h1>
         </div>
 
         <form action="{{ route('order.update', $order->id) }}" method="POST" class="p-6">
@@ -23,7 +23,7 @@
                         <input
                             type="text"
                             name="customer_name"
-                            value="{{ old('customer_name', $order->nama_pelanggan) }}"
+                            value="{{ old('customer_name', $order->customer_name) }}"
                             class="flex-1 px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600"
                             required
                         >
@@ -37,7 +37,7 @@
                         <input
                             type="tel"
                             name="customer_phone"
-                            value="{{ old('customer_phone', $order->no_hp) }}"
+                            value="{{ old('customer_phone', $order->customer_phone) }}"
                             class="flex-1 px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600"
                             required
                         >
@@ -45,20 +45,95 @@
                 </div>
             </div>
 
-            <!-- Jenis Layanan -->
+            <!-- Rincian Pesanan -->
             <div class="border-4 border-green-500 rounded-lg p-4 mb-6">
-                <h2 class="text-center font-bold text-gray-800 mb-4 bg-green-200 py-2 rounded">Pilih Layanan Laundry</h2>
+                <h2 class="text-center font-bold text-gray-800 mb-4 bg-green-200 py-2 rounded">Rincian Pesanan</h2>
 
-                <div class="space-y-2">
-                    <label class="flex items-center gap-2 text-sm">
-                        <input type="checkbox" name="layanan[]" value="Reguler" {{ in_array('Reguler', old('layanan', $order->layanan ?? [])) ? 'checked' : '' }} class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                        <span>Reguler (Rp5.000 / Kg)</span>
-                    </label>
+                @error('items')
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        {{ $message }}
+                    </div>
+                @enderror
 
-                    <label class="flex items-center gap-2 text-sm">
-                        <input type="checkbox" name="layanan[]" value="Express" {{ in_array('Express', old('layanan', $order->layanan ?? [])) ? 'checked' : '' }} class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                        <span>Express (Rp8.000 / Kg)</span>
-                    </label>
+                <!-- Reguler (per Kg) -->
+                <div class="mb-4">
+                    <h3 class="font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-2 rounded">Reguler (per Kg)</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Kolom Kiri -->
+                        <div class="space-y-2">
+                            @foreach($serviceTypes->where('name', '!=', 'Express')->take(2) as $service)
+                                <label class="flex items-start gap-2 text-sm">
+                                    <input
+                                        type="checkbox"
+                                        class="w-4 h-4 mt-1 text-green-600 border-gray-300 rounded focus:ring-green-500 service-checkbox"
+                                        data-service-id="{{ $service->id }}"
+                                        data-service-name="{{ $service->name }}"
+                                        data-service-price="{{ $service->price_per_kg }}"
+                                        {{ collect(old('items', $order->items->pluck('service_type_id')->toArray()))->contains($service->id) ? 'checked' : '' }}
+                                    >
+                                    <span>{{ $service->name }} (Rp{{ number_format($service->price_per_kg, 0, ',', '.') }}/kg)</span>
+                                </label>
+                            @endforeach
+                        </div>
+
+                        <!-- Kolom Kanan - Express -->
+                        <div class="space-y-2">
+                            <h4 class="font-semibold text-gray-700">Express (per Kg)</h4>
+                            @foreach($serviceTypes->where('name', 'Express') as $service)
+                                <label class="flex items-start gap-2 text-sm">
+                                    <input
+                                        type="checkbox"
+                                        class="w-4 h-4 mt-1 text-green-600 border-gray-300 rounded focus:ring-green-500 service-checkbox"
+                                        data-service-id="{{ $service->id }}"
+                                        data-service-name="{{ $service->name }}"
+                                        data-service-price="{{ $service->price_per_kg }}"
+                                        {{ collect(old('items', $order->items->pluck('service_type_id')->toArray()))->contains($service->id) ? 'checked' : '' }}
+                                    >
+                                    <span>{{ $service->name }} (Rp{{ number_format($service->price_per_kg, 0, ',', '.') }}/kg)</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Satuan (per Item) -->
+                <div class="mb-4">
+                    <h3 class="font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-2 rounded">Satuan (per Item)</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Kolom Kiri -->
+                        <div class="space-y-2">
+                            @foreach($clothingTypes->take(ceil($clothingTypes->count() / 2)) as $clothing)
+                                <label class="flex items-start gap-2 text-sm">
+                                    <input
+                                        type="checkbox"
+                                        class="w-4 h-4 mt-1 text-green-600 border-gray-300 rounded focus:ring-green-500 clothing-checkbox"
+                                        data-clothing-id="{{ $clothing->id }}"
+                                        data-clothing-name="{{ $clothing->name }}"
+                                        data-clothing-price="{{ $clothing->additional_price }}"
+                                        {{ collect(old('items', $order->items->pluck('clothing_type_id')->toArray()))->contains($clothing->id) ? 'checked' : '' }}
+                                    >
+                                    <span>{{ $clothing->name }} – Rp{{ number_format($clothing->additional_price, 0, ',', '.') }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+
+                        <!-- Kolom Kanan -->
+                        <div class="space-y-2">
+                            @foreach($clothingTypes->slice(ceil($clothingTypes->count() / 2)) as $clothing)
+                                <label class="flex items-start gap-2 text-sm">
+                                    <input
+                                        type="checkbox"
+                                        class="w-4 h-4 mt-1 text-green-600 border-gray-300 rounded focus:ring-green-500 clothing-checkbox"
+                                        data-clothing-id="{{ $clothing->id }}"
+                                        data-clothing-name="{{ $clothing->name }}"
+                                        data-clothing-price="{{ $clothing->additional_price }}"
+                                        {{ collect(old('items', $order->items->pluck('clothing_type_id')->toArray()))->contains($clothing->id) ? 'checked' : '' }}
+                                    >
+                                    <span>{{ $clothing->name }} – Rp{{ number_format($clothing->additional_price, 0, ',', '.') }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -71,7 +146,7 @@
                             type="radio"
                             name="delivery_type"
                             value="antar_jemput"
-                            {{ old('delivery_type', $order->jenis_pengantaran) == 'antar_jemput' ? 'checked' : '' }}
+                            {{ old('delivery_type', $order->delivery_type) == 'antar_jemput' ? 'checked' : '' }}
                             class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
                         >
                         <span class="text-sm">Antar Jemput</span>
@@ -81,15 +156,15 @@
                             type="radio"
                             name="delivery_type"
                             value="pengantaran_pribadi"
-                            {{ old('delivery_type', $order->jenis_pengantaran) == 'pengantaran_pribadi' ? 'checked' : '' }}
+                            {{ old('delivery_type', $order->delivery_type) == 'pengantaran_pribadi' ? 'checked' : '' }}
                             class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
                         >
                         <span class="text-sm">Pengantaran Pribadi</span>
                     </label>
                 </div>
 
-                <!-- Alamat -->
-                <div id="alamatSection" class="mt-4 space-y-3">
+                <!-- Alamat & Tanggal (Only for Antar Jemput) -->
+                <div id="alamatSection" class="mt-4 space-y-3 {{ old('delivery_type', $order->delivery_type) !== 'antar_jemput' ? 'hidden' : '' }}">
                     <div class="flex items-center gap-2">
                         <label class="text-sm font-medium text-gray-700 w-40">Alamat</label>
                         <span class="text-gray-600">:</span>
@@ -102,31 +177,67 @@
                                 class="w-full px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600"
                                 placeholder="Masukkan alamat lengkap Anda..."
                             >
+                            <p class="text-xs text-gray-500 mt-1">
+                                <span class="text-yellow-600">⚠️ Catatan:</span> Layanan antar jemput hanya tersedia di <span class="font-semibold">Kelurahan Tuah Karya</span>
+                            </p>
                         </div>
+                    </div>
+
+                    <!-- Alert jika alamat tidak valid (JavaScript) -->
+                    <div id="addressAlert" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-3 rounded">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="font-semibold">Maaf, alamat Anda berada di luar area layanan kami.</span>
+                        </div>
+                        <p class="text-sm mt-1 ml-7">Kami hanya melayani antar jemput di Kelurahan Tuah Karya. Silakan pilih "Pengantaran Pribadi" atau ubah alamat Anda.</p>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm font-medium text-gray-700 w-40">Jam/ Tanggal Penjemputan</label>
+                        <span class="text-gray-600">:</span>
+                        <input
+                            type="time"
+                            name="pickup_time"
+                            value="{{ old('pickup_time', $order->pickup_time ? $order->pickup_time->format('H:i') : '') }}"
+                            class="w-32 px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600"
+                        >
+                        <input
+                            type="date"
+                            name="pickup_date"
+                            value="{{ old('pickup_date', $order->pickup_date ? $order->pickup_date->format('Y-m-d') : '') }}"
+                            min="{{ date('Y-m-d') }}"
+                            class="flex-1 px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600"
+                        >
                     </div>
                 </div>
             </div>
 
-            <!-- Catatan -->
-            {{-- <div class="border-4 border-green-500 rounded-lg p-4 mb-6">
+            <!-- Catatan Khusus -->
+            <div class="border-4 border-green-500 rounded-lg p-4 mb-6">
                 <h2 class="text-center font-bold text-gray-800 mb-4 bg-green-200 py-2 rounded">Catatan Khusus</h2>
                 <textarea
                     name="notes"
                     rows="4"
                     class="w-full px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600 resize-none"
-                    placeholder="Tambahkan catatan khusus..."
-                >{{ old('notes', $order->catatan) }}</textarea>
-            </div> --}}
+                    placeholder="Tambahkan catatan khusus untuk pesanan Anda..."
+                >{{ old('notes', $order->notes) }}</textarea>
+            </div>
 
             <!-- Status -->
             <div class="border-4 border-green-500 rounded-lg p-4 mb-6">
                 <h2 class="text-center font-bold text-gray-800 mb-4 bg-green-200 py-2 rounded">Status Order</h2>
                 <select name="status" class="w-full px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600">
-                    <option value="Pending" {{ old('status', $order->status) == 'Pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="Proses" {{ old('status', $order->status) == 'Proses' ? 'selected' : '' }}>Proses</option>
-                    <option value="Selesai" {{ old('status', $order->status) == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                    <option value="pending" {{ old('status', $order->status) == 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="processing" {{ old('status', $order->status) == 'processing' ? 'selected' : '' }}>Processing</option>
+                    <option value="completed" {{ old('status', $order->status) == 'completed' ? 'selected' : '' }}>Completed</option>
+                    <option value="cancelled" {{ old('status', $order->status) == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                 </select>
             </div>
+
+            <!-- Hidden fields untuk items yang dipilih -->
+            <div id="selectedItemsContainer"></div>
 
             <!-- Tombol Submit -->
             <div class="text-center">
@@ -143,17 +254,128 @@
 </div>
 
 <script>
-const addressInput = document.getElementById('addressInput');
-const submitButton = document.getElementById('submitButton');
+// Collect selected services and clothing types
+function updateSelectedItems() {
+    const container = document.getElementById('selectedItemsContainer');
+    container.innerHTML = '';
 
-addressInput.addEventListener('input', () => {
-    const address = addressInput.value.toLowerCase();
-    const valid = address.includes('tuah karya') || address.includes('tuahkarya');
-    if (address.length && !valid) {
-        submitButton.disabled = true;
+    let itemIndex = 0;
+
+    // Get all checked service checkboxes
+    const selectedServices = document.querySelectorAll('.service-checkbox:checked');
+    const selectedClothing = document.querySelectorAll('.clothing-checkbox:checked');
+
+    // Combine services with clothing types
+    selectedServices.forEach(serviceCheckbox => {
+        selectedClothing.forEach(clothingCheckbox => {
+            const serviceId = serviceCheckbox.dataset.serviceId;
+            const clothingId = clothingCheckbox.dataset.clothingId;
+
+            // Create hidden inputs
+            const itemHtml = `
+                <input type="hidden" name="items[${itemIndex}][service_type_id]" value="${serviceId}">
+                <input type="hidden" name="items[${itemIndex}][clothing_type_id]" value="${clothingId}">
+                <input type="hidden" name="items[${itemIndex}][weight]" value="1">
+            `;
+
+            container.insertAdjacentHTML('beforeend', itemHtml);
+            itemIndex++;
+        });
+    });
+}
+
+// Validasi alamat
+function validateAddress() {
+    const deliveryType = document.querySelector('input[name="delivery_type"]:checked').value;
+    const addressInput = document.getElementById('addressInput');
+    const addressAlert = document.getElementById('addressAlert');
+    const submitButton = document.getElementById('submitButton');
+
+    if (deliveryType === 'antar_jemput') {
+        const address = addressInput.value.toLowerCase();
+        const isValidArea = address.includes('tuah karya') ||
+                           address.includes('tuahkarya') ||
+                           address.includes('tuah-karya');
+
+        if (address.length > 0 && !isValidArea) {
+            // Alamat tidak valid
+            addressAlert.classList.remove('hidden');
+            addressInput.classList.remove('border-green-500');
+            addressInput.classList.add('border-red-500');
+            submitButton.disabled = true;
+            return false;
+        } else if (address.length > 0 && isValidArea) {
+            // Alamat valid
+            addressAlert.classList.add('hidden');
+            addressInput.classList.remove('border-red-500');
+            addressInput.classList.add('border-green-500');
+            submitButton.disabled = false;
+            return true;
+        } else {
+            // Belum diisi
+            addressAlert.classList.add('hidden');
+            addressInput.classList.remove('border-red-500');
+            addressInput.classList.add('border-green-500');
+            submitButton.disabled = false;
+            return true;
+        }
     } else {
+        // Pengantaran pribadi, no validation needed
+        addressAlert.classList.add('hidden');
+        submitButton.disabled = false;
+        return true;
+    }
+}
+
+// Toggle alamat section based on delivery type
+function toggleAlamatSection() {
+    const deliveryType = document.querySelector('input[name="delivery_type"]:checked').value;
+    const alamatSection = document.getElementById('alamatSection');
+    const addressInput = document.getElementById('addressInput');
+    const addressAlert = document.getElementById('addressAlert');
+    const submitButton = document.getElementById('submitButton');
+
+    if (deliveryType === 'antar_jemput') {
+        alamatSection.classList.remove('hidden');
+        addressInput.required = true;
+        validateAddress();
+    } else {
+        alamatSection.classList.add('hidden');
+        addressInput.required = false;
+        addressInput.value = '';
+        addressAlert.classList.add('hidden');
         submitButton.disabled = false;
     }
+}
+
+// Add event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const serviceCheckboxes = document.querySelectorAll('.service-checkbox');
+    const clothingCheckboxes = document.querySelectorAll('.clothing-checkbox');
+    const deliveryRadios = document.querySelectorAll('input[name="delivery_type"]');
+    const addressInput = document.getElementById('addressInput');
+
+    // Service & clothing checkboxes
+    serviceCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedItems);
+    });
+
+    clothingCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedItems);
+    });
+
+    // Delivery type change
+    deliveryRadios.forEach(radio => {
+        radio.addEventListener('change', toggleAlamatSection);
+    });
+
+    // Address input validation
+    addressInput.addEventListener('input', validateAddress);
+    addressInput.addEventListener('blur', validateAddress);
+
+    // Initialize on page load
+    toggleAlamatSection();
+    updateSelectedItems();
 });
 </script>
 @endsection
