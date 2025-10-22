@@ -218,14 +218,6 @@ class OrderController extends Controller
         }
     }
 
-    public function kainMasuk()
-{
-    $orders = Order::where('status', 'Pending') // misal hanya tampilkan yang baru masuk
-        ->orderBy('created_at', 'desc')
-        ->get();
-
-    return view('dashboard.order.kain-masuk', compact('orders'));
-}
 
 
     /**
