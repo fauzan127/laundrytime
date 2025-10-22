@@ -51,10 +51,10 @@ class OrderController extends Controller
         try {
             $data = Order::where('id', $id)
                         ->select(
-                            'nama_pelanggan',
-                            'no_hp',
-                            'layanan',
-                            'berat',
+                            'customer_name as nama',
+                            'customer_phone as no_hp',
+                            'status',
+                            'weight as berat',
                             'status as status_layanan',
                             'created_at as tanggal_masuk'
 

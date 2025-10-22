@@ -105,16 +105,16 @@
   @foreach($data as $item)
   <tr>
     <td class="px-4 py-2 border">{{ $item->id }}</td>
-    <td class="px-4 py-2 border">{{ $item->nama_pelanggan }}</td>
-    <td class="px-4 py-2 border">{{ $item->no_hp }}</td>
-    <td class="px-4 py-2 border">{{ $item->layanan }}</td>
-    <td class="px-4 py-2 border">{{ $item->berat ? number_format($item->berat, 2) . ' kg' : '-'}}</td>
+    <td class="px-4 py-2 border">{{ $item->customer_name }}</td>
+    <td class="px-4 py-2 border">{{ $item->customer_phone }}</td>
+    <td class="px-4 py-2 border">{{ $item->delivery_type }}</td>
+    <td class="px-4 py-2 border">{{ $item->weight ? number_format($item->weight, 2) . ' kg' : '-'}}</td>
     <td class="px-4 py-2 border text-center">
       <select class="status-dropdown" data-order-id="{{ $item->id }}">
             <option value="Pending" {{ $item->status == 'Pending' ? 'selected' : '' }}>Pending</option>
-            <option value="Diproses" {{ $item->status == 'Diproses' ? 'selected' : '' }}>Diproses</option>
-            <option value="Sampai Tujuan" {{ $item->status == 'Sampai Tujuan' ? 'selected' : '' }}>Sampai Tujuan</option>
-            <option value="Antar" {{ $item->status == 'Antar' ? 'selected' : '' }}>Pengantaran</option>
+            <option value="Diproses" {{ $item->status == 'Processing' ? 'selected' : '' }}>Diproses</option>
+            <option value="Sampai Tujuan" {{ $item->status == 'Completed' ? 'selected' : '' }}>Selesai</option>
+            <option value="Antar" {{ $item->status == 'Cancelled' ? 'selected' : '' }}>Dibatalkan</option>
         </select>
     </td>
     <td class="px-4 py-2 border">{{ $item->created_at }}</td>
@@ -144,29 +144,26 @@
     <div id="info-pesanan-detail" class="text-gray-800 text-base leading-relaxed space-y-1"></div>
     </main>
 </body>
+
 <script>
 const sidebar = document.getElementById('sidebar');
 const toggleBtn = document.getElementById('toggleBtn');
 const sidebarTexts = document.querySelectorAll('.sidebar-text');
 const sidebarTitle = document.getElementById('sidebarTitle');
 const toggleIcon = document.getElementById('toggleIcon');
-const sidebarNav = document.getElementById('sidebarNav');
-const navItems = document.querySelectorAll('.nav-item');
 const tbodyTransaksi = document.getElementById('data-transaksi');
 const searchInput = document.getElementById('searchInput');
 
-// Variabel global untuk pagination
+// Variabel global
 let currentPage = 1;
 let rowsPerPage = 10;
 let allData = [];
 
-// --- FUNGSI UPDATE STATUS ---
+// 🔹 UPDATE STATUS KE DATABASE
 async function updateStatus(orderId, newStatus) {
-    console.log('🔄 Mengupdate status:', { orderId, newStatus });
-    
+    console.log('🔄 Update status:', orderId, newStatus);
     try {
-        if (!confirm(`Yakin ingin mengubah status pesanan ID ${orderId} menjadi "${newStatus}"?`)) {
-            // Reset dropdown ke nilai semula dengan reload data
+        if (!confirm(`Ubah status pesanan ID ${orderId} menjadi "${newStatus}"?`)) {
             loadDataTransaksi();
             return;
         }
@@ -183,54 +180,41 @@ async function updateStatus(orderId, newStatus) {
             })
         });
 
-        console.log('📡 Response status:', response.status);
-        
         const result = await response.json();
-        console.log('📡 Response data:', result);
+        console.log('📡 Update response:', result);
 
         if (result.success) {
-            alert(`✅ Status pesanan ID ${orderId} berhasil diubah menjadi: ${newStatus}`);
-            // Refresh data setelah update berhasil
-            setTimeout(() => loadDataTransaksi(), 500);
+            alert(`✅ Status pesanan ID ${orderId} berhasil diubah menjadi ${newStatus}`);
+            loadDataTransaksi();
         } else {
-            alert(`❌ Gagal mengupdate status: ${result.message}`);
-            // Reset data jika gagal
+            alert(`❌ Gagal update status: ${result.message || 'Unknown error'}`);
             loadDataTransaksi();
         }
     } catch (error) {
-        console.error('❌ Error:', error);
-        alert('❌ Terjadi kesalahan saat mengupdate status');
-        // Reset data jika error
+        console.error('❌ Error update status:', error);
+        alert('Terjadi kesalahan saat update status.');
         loadDataTransaksi();
     }
 }
 
-// --- FUNGSI UNTUK DROPDOWN DI BLADE TEMPLATE ---
+// 🔹 INISIALISASI DROPDOWN STATUS
 function initializeDropdowns() {
-    // Event listener untuk semua dropdown status yang ada di blade template
     document.querySelectorAll('.status-dropdown').forEach(dropdown => {
         dropdown.addEventListener('change', function() {
             const orderId = this.getAttribute('data-order-id');
             const newStatus = this.value;
-            console.log('📝 Dropdown changed:', { orderId, newStatus });
             updateStatus(orderId, newStatus);
         });
     });
 }
 
-// --- FUNGSI PENCARIAN ---
+// 🔹 CARI DATA
 function handleSearch() {
     const searchTerm = searchInput.value.toLowerCase();
-    
-    if (searchTerm === '') {
-        renderTablePage(currentPage, allData);
-        return;
-    }
-
     const filteredData = allData.filter(row => 
-        (row.nama_pelanggan || '').toLowerCase().includes(searchTerm) ||
-        (row.no_hp || '').toLowerCase().includes(searchTerm) ||
-        (row.layanan || '').toLowerCase().includes(searchTerm) ||
+        (row.customer_name || '').toLowerCase().includes(searchTerm) ||
+        (row.customer_phone || '').toLowerCase().includes(searchTerm) ||
+        (row.delivery_type || '').toLowerCase().includes(searchTerm) ||
         (row.status || '').toLowerCase().includes(searchTerm)
     );
 
@@ -238,17 +222,13 @@ function handleSearch() {
     renderTablePage(currentPage, filteredData);
 }
 
-// --- FUNGSI RENDER TABEL ---
+// 🔹 TAMPILKAN TABEL
 function renderTablePage(page, data = allData) {
     tbodyTransaksi.innerHTML = '';
-    
+
     if (data.length === 0) {
         tbodyTransaksi.innerHTML = `
-        <tr>
-            <td colspan="8" class="text-center py-4 text-gray-500">
-            Tidak ada data transaksi ditemukan.
-            </td>
-        </tr>`;
+        <tr><td colspan="8" class="text-center py-4 text-gray-500">Tidak ada data ditemukan.</td></tr>`;
         renderPagination(data);
         return;
     }
@@ -259,172 +239,110 @@ function renderTablePage(page, data = allData) {
     const pageData = data.slice(start, end);
 
     pageData.forEach((row, index) => {
-        const tr = document.createElement('tr');
-        const statusOptions = ['Pending', 'Diproses', 'Antar', 'Sampai Tujuan'];
-        
-        // Generate options untuk dropdown
-        const optionsHtml = statusOptions
-        .map(status => 
-            `<option value="${status}" ${row.status === status ? 'selected' : ''}>${status}</option>`
-        )
-        .join('');
-        
-        tr.innerHTML = `
-        <td class="border px-4 py-2">${start + index + 1}</td>
-        <td class="border px-4 py-2">${row.nama_pelanggan || row.nama}</td>
-        <td class="border px-4 py-2">${row.no_hp}</td>
-        <td class="border px-4 py-2">${row.layanan}</td>
-        <td class="border px-4 py-2">${parseFloat(row.berat).toFixed(2)} kg</td>
-        <td class="px-4 py-2 border">
-            <select class="status-dropdown w-full px-2 py-1 border rounded text-sm" data-order-id="${row.id}">
-            ${optionsHtml}
-            </select>
-        </td>
-        <td class="border px-4 py-2">${formatDate(row.created_at)}</td>
-        <td class="border px-4 py-2 text-center">
-            <a href="/detailkainkeluar/${row.id}" class="text-black hover:text-blue-600 transition-colors">
-            <span class="material-icons-outlined text-lg">visibility</span>
-            </a>
-        </td>`;
-        tbodyTransaksi.appendChild(tr);
+        const options = ['Pending', 'Diproses', 'Antar', 'Sampai Tujuan']
+            .map(status => `<option value="${status}" ${row.status === status ? 'selected' : ''}>${status}</option>`)
+            .join('');
+
+        tbodyTransaksi.innerHTML += `
+        <tr>
+            <td class="border px-4 py-2">${start + index + 1}</td>
+            <td class="border px-4 py-2">${row.customer_name || '-'}</td>
+            <td class="border px-4 py-2">${row.customer_phone || '-'}</td>
+            <td class="border px-4 py-2">${row.delivery_type || '-'}</td>
+            <td class="border px-4 py-2">${row.weight ? parseFloat(row.weight).toFixed(2) + ' kg' : '-'}</td>
+            <td class="border px-4 py-2">
+                <select class="status-dropdown border rounded p-1 text-sm" data-order-id="${row.id}">
+                    ${options}
+                </select>
+            </td>
+            <td class="border px-4 py-2">${formatDate(row.created_at)}</td>
+            <td class="border px-4 py-2 text-center">
+                <a href="/detailkainkeluar/${row.id}" 
+                   class="text-[#35623E] hover:text-lime-700 transition-colors">
+                   <span class="material-icons-outlined text-lg">visibility</span>
+                </a>
+            </td>
+        </tr>`;
     });
 
-    // Inisialisasi dropdown setelah render
     initializeDropdowns();
     renderPagination(data);
 }
 
-// Fungsi format tanggal
-function formatDate(dateString) {
-    if (!dateString) return '-';
-    
-    try {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        }).replace(',', '');
-    } catch (e) {
-        return dateString;
-    }
+// 🔹 FORMAT TANGGAL
+function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleString('id-ID', { 
+        day: '2-digit', month: '2-digit', year: 'numeric', 
+        hour: '2-digit', minute: '2-digit' 
+    });
 }
 
-// --- FUNGSI PAGINATION ---
+// 🔹 PAGINATION
 function renderPagination(data = allData) {
     const container = document.getElementById('pagination-container');
     const totalPages = Math.ceil(data.length / rowsPerPage);
-    
-    if (totalPages <= 1) {
-        container.innerHTML = '';
-        return;
-    }
-    
+    if (totalPages <= 1) return container.innerHTML = '';
+
     container.innerHTML = `
-    <div class="flex items-center justify-center space-x-4 mt-4">
-        <button 
-        ${currentPage === 1 ? 'disabled' : ''} 
-        onclick="changePage(${currentPage - 1})"
-        class="px-4 py-2 bg-gray-200 rounded ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300'}"
-        >
-        Prev
-        </button>
-        <span class="px-4 py-2">${currentPage} / ${totalPages}</span>
-        <button 
-        ${currentPage === totalPages ? 'disabled' : ''} 
-        onclick="changePage(${currentPage + 1})"
-        class="px-4 py-2 bg-gray-200 rounded ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300'}"
-        >
-        Next
-        </button>
-    </div>
+        <div class="flex items-center justify-center space-x-4 mt-4">
+            <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}
+                class="px-3 py-1 bg-gray-200 rounded ${currentPage === 1 ? 'opacity-50' : 'hover:bg-gray-300'}">Prev</button>
+            <span>${currentPage} / ${totalPages}</span>
+            <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}
+                class="px-3 py-1 bg-gray-200 rounded ${currentPage === totalPages ? 'opacity-50' : 'hover:bg-gray-300'}">Next</button>
+        </div>
     `;
 }
-
 function changePage(page) {
     if (page < 1 || page > Math.ceil(allData.length / rowsPerPage)) return;
     currentPage = page;
     renderTablePage(currentPage, allData);
 }
 
-// --- FUNGSI UTAMA: MUAT DATA ---
+// 🔹 LOAD DATA DARI DATABASE
 async function loadDataTransaksi() {
-    const API_URL_TRANSAKSI = '/api/orders/list';
-
-    
     try {
         tbodyTransaksi.innerHTML = `
-        <tr>
-            <td colspan="8" class="text-center py-4 text-gray-500">
-            <div class="flex justify-center items-center">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span class="ml-2">Memuat data transaksi...</span>
-            </div>
-            </td>
-        </tr>`;
+        <tr><td colspan="8" class="text-center py-4 text-gray-500">
+        <div class="flex justify-center items-center">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-green-700"></div>
+            <span class="ml-2">Memuat data...</span>
+        </div></td></tr>`;
 
-        const response = await fetch('/api/orders/update-status', { ... });
-
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const response = await fetch('/api/orders/list');
+        if (!response.ok) throw new Error('Gagal memuat data');
 
         const data = await response.json();
-        
-        console.log('📊 Data loaded:', data);
-        
-        // Balik urutan data
-        allData = data.reverse();
-        currentPage = 1;
+        console.log('📦 Data loaded:', data);
 
-        if (allData.length === 0) {
-            tbodyTransaksi.innerHTML = `
-            <tr>
-                <td colspan="8" class="text-center py-4 text-gray-500">
-                Tidak ada data transaksi ditemukan.
-                </td>
-            </tr>`;
-            return;
-        }
-
+        allData = Array.isArray(data) ? data.reverse() : [];
         renderTablePage(currentPage, allData);
-
     } catch (error) {
         console.error('Error loading data:', error);
         tbodyTransaksi.innerHTML = `
-        <tr>
-            <td colspan="8" class="text-center text-red-600 py-4">
-            Error: ${error.message}
-            </td>
-        </tr>`;
+        <tr><td colspan="8" class="text-center text-red-600 py-4">
+        Gagal memuat data: ${error.message}</td></tr>`;
     }
 }
 
-// Event listener untuk pencarian
+// 🔹 EVENT SEARCH
 if (searchInput) {
     searchInput.addEventListener('input', handleSearch);
-}
-
-// Event listener untuk enter di search
-if (searchInput) {
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            handleSearch();
-        }
+    searchInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter') handleSearch();
     });
 }
 
-// Inisialisasi saat DOM siap
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 DOM Loaded, initializing...');
-    
-    // Inisialisasi dropdown yang sudah ada di blade template
+// 🔹 SAAT HALAMAN DILOAD
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 DOM Ready, loading data...');
     initializeDropdowns();
-    
-    // Load data untuk bagian yang menggunakan JavaScript
     loadDataTransaksi();
 });
 </script>
+
 
 </body>
 </html>

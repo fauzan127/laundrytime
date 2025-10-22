@@ -27,10 +27,10 @@
         <!-- Info Pesanan -->
         <div class="text-gray-800 text-base leading-relaxed mb-8 space-y-1">
             <p>ID Pesanan : TL{{ $data->id }}</p>
-            <p>Nama Customer: {{ $data->nama_pelanggan }}</p>
-            <p>Telepon: {{ $data->no_hp ?? '-' }}</p>
+            <p>Nama Customer: {{ $data->customer_name }}</p>
+            <p>Telepon: {{ $data->customer_phone ?? '-' }}</p>
             <p>Tanggal Masuk : {{ $data->created_at }}</p>
-            <p>Layanan : {{ $data->layanan }}</p>
+            <p>Layanan : {{ $data->delivery_type }}</p>
         </div>
 
         <!-- Detail Pesanan -->
@@ -46,8 +46,8 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="px-4 py-2 border-r">{{ $data->layanan }}</td>
-                        <td class="px-4 py-2 border-r text-center">{{ $data->berat }}</td>
+                        <td class="px-4 py-2 border-r">{{ $data->delivery_type }}</td>
+                        <td class="px-4 py-2 border-r text-center">{{ $data->weight }}</td>
                         <td class="px-4 py-2">
                             <span class="font-semibold {{ $data->status }} px-2 py-1 rounded-full text-sm">
                                 {{ $data->status }}

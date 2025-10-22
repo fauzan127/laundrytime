@@ -66,14 +66,14 @@ class KainKeluarController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_pelanggan' => 'required|string|max:255',    // SESUAI TABEL
-            'no_hp' => 'required|string|max:255',           // SESUAI TABEL  
-            'layanan' => 'required|string|max:50',           // SESUAI TABEL
-            'berat' => 'required|numeric|min:0',            // SESUAI TABEL
+            'customer_name' => 'required|string|max:255',    // SESUAI TABEL
+            'customer_phone' => 'required|string|max:255',           // SESUAI TABEL  
+            'status' => 'required|string|max:50',           // SESUAI TABEL
+            'weight' => 'required|numeric|min:0',            // SESUAI TABEL
             'status' => 'required|in:Diproses,,Pengantaran,Sampai Tujuan',
-            'jenis_pengantaran' => 'nullable|string',
-            'alamat' => 'nullable|string',
-            'catatan' => 'nullable|string',
+            'delivery_type' => 'nullable|string',
+            'address' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         Order::create($validated);
@@ -88,14 +88,14 @@ class KainKeluarController extends Controller
         $data = Order::findOrFail($id);
 
         $validated = $request->validate([
-            'nama_pelanggan' => 'required|string|max:255',
-            'no_hp' => 'required|string|max:255', 
-            'layanan' => 'required|string|max:50',
-            'berat' => 'required|numeric|min:0',
+            'customer_name' => 'required|string|max:255',
+            'customer_phone' => 'required|string|max:255', 
+            'status' => 'required|string|max:50',
+            'weight' => 'required|numeric|min:0',
             'status' => 'required|in:Diproses,Sampai Tujuan,Antar,',
-            'jenis_pengantaran' => 'nullable|string',
-            'alamat' => 'nullable|string',
-            'catatan' => 'nullable|string',
+            'delivery_type' => 'nullable|string',
+            'address' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         $data->update($validated);
