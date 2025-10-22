@@ -55,8 +55,8 @@ class DashboardController extends Controller
         return [
             'diproses' => (clone $baseQuery)->where('status', 'diproses')->count(),
             'siap_antar' => (clone $baseQuery)->where('status', 'siap_antar')->count(),
-            'antar' => (clone $baseQuery)->where('status', 'antar')->count(),
-            'sampai_tujuan' => (clone $baseQuery)->where('status', 'sampai_tujuan')->count(),
+            'sampai_tujuan' => (clone $baseQuery)->where('status', 'sampai_tujuan')->count(), 
+            'total' => $baseQuery->count(), // total semua pesanan
         ];
     }
-}
+} 
