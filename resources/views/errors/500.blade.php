@@ -10,19 +10,19 @@
 
     <!-- Gambar ilustrasi -->
     <div class="text-center px-6">
-        <img src="{{ asset('image/500.png') }}" alt="500 Forbidden" class="w-3/4 mx-auto mb-6">
+        <img src="{{ asset('image/500.png') }}" alt="403 Forbidden" class="w-3/4 mx-auto mb-6">
 
-        <!-- Pesan -->
-        {{-- <h1 class="text-3xl font-bold text-green-700 mb-2">500 ERROR FORBIDDEN</h1>
+       
+        <h1 class="text-3xl font-bold text-green-700">403 ERROR FORBIDDEN</h1>
         <p class="text-gray-600 mb-6">
-            Hmm... sepertinya kamu belum punya izin untuk membuka halaman ini.<br>
-            Yuk kembali ke beranda.
-        </p> --}}
+            Waduh, ada masalah di sistem Time Laundry. 
+            Tim kami sedang memperbaikinya. Coba lagi beberapa saat, ya.
+        </p> 
 
         <!-- Tombol kembali -->
         <a href="{{ url('/') }}"
            class="bg-gray-200 hover:bg-green-500 hover:text-white font-semibold py-2 px-6 rounded-lg transition">
-           Beranda
+           Muat Ulang Halaman
         </a>
     </div>
 

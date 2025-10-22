@@ -12,12 +12,12 @@
     <div class="text-center px-6">
         <img src="{{ asset('image/403.png') }}" alt="403 Forbidden" class="w-3/4 mx-auto mb-6">
 
-        <!-- Pesan -->
-        {{-- <h1 class="text-3xl font-bold text-green-700 mb-2">403 ERROR FORBIDDEN</h1>
+       
+        <h1 class="text-3xl font-bold text-green-700">403 ERROR FORBIDDEN</h1>
         <p class="text-gray-600 mb-6">
             Hmm... sepertinya kamu belum punya izin untuk membuka halaman ini.<br>
             Yuk kembali ke beranda.
-        </p> --}}
+        </p> 
 
         <!-- Tombol kembali -->
         <a href="{{ url('/') }}"
