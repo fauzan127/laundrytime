@@ -26,7 +26,7 @@ class OrderFactory extends Factory
      */
     public function definition(): array
     {
-        $statuses = ['pending', 'processing', 'completed', 'cancelled'];
+        $statuses = ['diproses', 'siap_antar', 'antar', 'sampai_tujuan'];
         $deliveryTypes = ['antar_jemput', 'pengantaran_pribadi'];
 
         return [
