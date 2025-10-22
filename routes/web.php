@@ -22,6 +22,8 @@ Route::middleware('auth_or_403')->group(function () {
 Route::middleware('auth_or_403')->group(function () {
     // Order routes
     Route::resource('order', OrderController::class);
+
+    Route::get('/kain-masuk', [OrderController::class, 'kainMasuk'])->name('kain-masuk');
 });
 
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
