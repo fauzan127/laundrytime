@@ -14,6 +14,7 @@ class LoginRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
+    //true artinya semua orang (termasuk tamu) boleh mengakses form login.
     public function authorize(): bool
     {
         return true;
@@ -24,6 +25,8 @@ class LoginRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+    //email wajib diisi, berupa string, dan harus format email valid.
+    //password wajib diisi dan berupa string.
     public function rules(): array
     {
         return [
@@ -37,6 +40,7 @@ class LoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
+    //Mengecek apakah user belum melebihi batas percobaan login (ensureIsNotRateLimited()).
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
@@ -57,6 +61,8 @@ class LoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
+    //Jika user sudah salah login lebih dari 5 kali (tooManyAttempts), maka:
+    //Sistem akan mengeluarkan event Lockout.
     public function ensureIsNotRateLimited(): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {

@@ -20,6 +20,18 @@ class AuthOr403Middleware
             abort(403);
         }
 
+        $user = Auth::user();
+
+        // Allow access to profile edit and update routes to avoid infinite loops
+        if ($request->routeIs('profile.edit') || $request->routeIs('profile.update')) {
+            return $next($request);
+        }
+
+        // Check if phone and address are filled
+        if (empty($user->phone) || empty($user->address)) {
+            return redirect()->route('profile.edit')->with('warning', 'Silakan lengkapi profil Anda dengan menambahkan nomor telepon dan alamat sebelum melanjutkan.');
+        }
+
         return $next($request);
     }
 }

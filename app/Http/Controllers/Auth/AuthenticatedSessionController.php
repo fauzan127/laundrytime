@@ -14,6 +14,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
+    //untuk menampilkan halaman login
     public function create(): View
     {
         return view('auth.login');
@@ -24,9 +25,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        $request->authenticate(); //Memvalidasi input email dan password, Melempar error jika gagal, atau lanjut jika berhasil.
 
-        $request->session()->regenerate();
+        $request->session()->regenerate(); //Setelah login berhasil, Laravel membuat ulang session ID baru.
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
@@ -36,11 +37,11 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        Auth::guard('web')->logout();
+        Auth::guard('web')->logout(); //Mengeluarkan user dari sistem dengan menghapus data autentikasi dari guard web.
 
-        $request->session()->invalidate();
+        $request->session()->invalidate(); //Menghapus semua data session dari browser.
 
-        $request->session()->regenerateToken();
+        $request->session()->regenerateToken(); //Membuat ulang CSRF token baru untuk keamanan (supaya token lama tidak disalahgunakan).
 
         return redirect('/login');
     }

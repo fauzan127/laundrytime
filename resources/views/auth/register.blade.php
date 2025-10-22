@@ -55,7 +55,7 @@
                 name="phone" 
                 :value="old('phone')" 
                 autocomplete="tel" 
-                placeholder="8123456789" />
+                placeholder="812-3456-7890" />
         </div>
             <x-input-error :messages="$errors->get('phone')" class="mt-2" />
         </div>
@@ -66,7 +66,16 @@
                 rows="3">{{ old('address') }}</textarea>
             <x-input-error :messages="$errors->get('address')" class="mt-2" />
         </div>
-        
+        <div class="flex items-center my-5">
+            <hr class="flex-grow border-gray-600">
+            <span class="px-1 text-gray-500 text-sm font-medium">Atau</span>
+            <hr class="flex-grow border-gray-600">
+        </div>
+        <a href=""
+            class="bg-gray-400 flex items-center justify-center w-full border border-gray-300 rounded-lg py-2 hover:bg-gray-100 transition">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5 mr-2">
+                <span class="text-gray-700 font-medium">Login dengan Google</span>
+        </a>
         <div class="flex items-center justify-end mt-4">
             <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
                 {{ __('Sudah punya akun?') }}

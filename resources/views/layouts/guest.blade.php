@@ -15,10 +15,10 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 antialiased">
+        <div class="fixed inset-0 bg-white/10 backdrop-blur-sm z-0"></div>
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-cover bg-center"
             style="background-image: linear-gradient(to right, rgba(169, 201, 125, 0.85), rgba(169, 201, 125, 0) 70%), url('{{ asset('image/bg-laundry.jpg') }}')">
-            
-            <div class="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+
 
             <div class="relative w-full sm:max-w-md mt-6 px-6 py-4 shadow-md overflow-hidden sm:rounded-lg" 
                 style="background-color: #A9C97D;">
