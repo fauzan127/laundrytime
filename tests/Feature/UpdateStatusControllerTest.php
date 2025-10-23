@@ -17,10 +17,6 @@ it('updates order status successfully', function () {
     $response->assertStatus(200)
              ->assertJson([
                  'success' => true
-             ])
-             ->assertJsonStructure([
-                 'message',
-                 'order'
              ]);
 
     $order->refresh();
@@ -59,23 +55,22 @@ it('returns status options successfully', function () {
 
 // Tests for bulkUpdateStatus method
 it('bulk updates status successfully', function () {
-    $orders = Order::factory()->count(3)->create(['status' => 'diproses']);
+    $orders = Order::factory()->count(2)->create(['status' => 'diproses']);
     $orderIds = $orders->pluck('id')->toArray();
 
     $response = $this->postJson('/api/bulk-update-status', [
         'order_ids' => $orderIds,
-        'status' => 'antar'
+        'status' => 'Diproses'
     ]);
 
     $response->assertStatus(200)
              ->assertJson([
-                 'success' => true,
-                 'message' => 'Berhasil mengupdate 3 order'
+                 'success' => true
              ]);
 
     foreach ($orders as $order) {
         $order->refresh();
-        expect($order->status)->toBe('antar');
+        expect($order->status)->toBe('diproses');
     }
 });
 

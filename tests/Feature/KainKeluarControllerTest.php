@@ -3,6 +3,7 @@
 use App\Http\Controllers\KainKeluarController;
 use App\Models\Order;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 
 uses(RefreshDatabase::class);
 
@@ -135,7 +136,7 @@ test('update returns 404 for non-existent order', function () {
     $response = $this->put(route('kain_keluar.update', 999), [
         'nama_pelanggan' => 'Test',
         'no_hp' => '123',
-        'layanan' => 'Test',
+        'layanan' => 'antar_jemput',
         'berat' => 1,
         'status' => 'diproses',
         'alamat' => 'Test',

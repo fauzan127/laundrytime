@@ -2,118 +2,107 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Order;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class KainKeluarController extends Controller
 {
-    // === 1. Halaman utama (Dashboard Kain Keluar) ===
     public function index()
     {
-        $data = Order::orderBy('id', 'asc')->get(['id', 'customer_name', 'delivery_type', 'status']);
+        $data = Order::all();
         return view('dashboardkainkeluar', compact('data'));
     }
 
-    // === 2. Update Status via AJAX ===
     public function updateStatus(Request $request)
     {
         $request->validate([
-            'order_id' => 'required|exists:orders,id',
-            'status' => 'required|in:diproses,slap_antar,antar,sampal_tujuan,cancelled',
+            'order_id' => 'required|integer|exists:orders,id',
+            'status' => 'required|string'
         ]);
 
-        try {
-            $order = Order::findOrFail($request->order_id);
-            $order->status = $request->status;
-            $order->save();
+        $order = Order::find($request->order_id);
+        $order->status = $request->status;
+        $order->save();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Status berhasil diperbarui.',
-                'updated_status' => $order->status
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat memperbarui status.',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Status berhasil diperbarui.',
+            'updated_status' => $request->status
+        ]);
     }
 
-    // === 3. Halaman detail kain keluar ===
     public function detailkainkeluar($id)
     {
-        $data = Order::find($id);
-        if (!$data) {
-            abort(404, 'Data tidak ditemukan');
-        }
+        $data = Order::findOrFail($id);
         return view('detailkainkeluar', compact('data'));
     }
 
-    // === 4. API list untuk AJAX (fetch data tabel) ===
     public function apiList()
     {
-        $data = Order::orderBy('id', 'asc')->get();
-        return response()->json($data);
+        return response()->json(Order::all());
     }
 
-    // === 5. Simpan data baru ===
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nama_pelanggan' => 'required|string|max:255',
-            'no_hp' => 'required|string|max:20',
-            'layanan' => 'required|string|max:100',
-            'berat' => 'required|numeric|min:0',
-            'status' => 'required|in:diproses,slap_antar,antar,sampal_tujuan,cancelled',
-            'alamat' => 'nullable|string',
-            'catatan' => 'nullable|string',
+        $request->validate([
+            'nama_pelanggan' => 'required',
+            'no_hp' => 'required',
+            'layanan' => 'required',
+            'berat' => 'required|numeric',
+            'status' => 'required',
+            'alamat' => 'required',
+            'catatan' => 'nullable'
         ]);
 
         Order::create([
-            'customer_name' => $validated['nama_pelanggan'],
-            'customer_phone' => $validated['no_hp'],
-            'delivery_type' => $validated['layanan'],
-            'weight' => $validated['berat'],
-            'status' => $validated['status'],
-            'address' => $validated['alamat'],
-            'notes' => $validated['catatan'],
-            'total_price' => 0, // Default value
-            'order_date' => now(),
+            'customer_name' => $request->nama_pelanggan,
+            'customer_phone' => $request->no_hp,
+            'delivery_type' => $request->layanan,
+            'weight' => $request->berat,
+            'status' => $request->status,
+            'address' => $request->alamat,
+            'notes' => $request->catatan,
             'user_id' => auth()->id(),
+            'order_number' => 'ORD-' . time(),
+            'order_date' => now(),
+            'total_price' => 0
         ]);
 
-        return redirect()->route('kain_keluar.index')
-            ->with('success', 'Data berhasil ditambahkan.');
+        return redirect()->route('kain_keluar.index')->with('success', 'Data berhasil ditambahkan.');
     }
 
-    // === 6. Update data lama ===
     public function update(Request $request, $id)
     {
-        $data = Order::findOrFail($id);
+        $order = Order::find($id);
+        if (!$order) {
+            abort(404);
+        }
 
-        $validated = $request->validate([
-            'nama_pelanggan' => 'required|string|max:255',
-            'no_hp' => 'required|string|max:20',
-            'layanan' => 'required|string|max:100',
-            'berat' => 'required|numeric|min:0',
-            'status' => 'required|in:diproses,slap_antar,antar,sampal_tujuan,cancelled',
-            'alamat' => 'nullable|string',
-            'catatan' => 'nullable|string',
+        $request->validate([
+            'nama_pelanggan' => 'required',
+            'no_hp' => 'required',
+            'layanan' => 'required',
+            'berat' => 'required|numeric',
+            'status' => 'required',
+            'alamat' => 'required',
+            'catatan' => 'nullable'
         ]);
 
-        $data->update([
-            'customer_name' => $validated['nama_pelanggan'],
-            'customer_phone' => $validated['no_hp'],
-            'delivery_type' => $validated['layanan'],
-            'weight' => $validated['berat'],
-            'status' => $validated['status'],
-            'address' => $validated['alamat'],
-            'notes' => $validated['catatan'],
-        ]);
+        $order->customer_name = $request->nama_pelanggan;
+        $order->customer_phone = $request->no_hp;
+        $order->delivery_type = $request->layanan;
+        $order->weight = $request->berat;
+        $order->status = $request->status;
+        $order->address = $request->alamat;
+        $order->notes = $request->catatan;
 
-        return redirect()->route('kain_keluar.index')
-            ->with('success', 'Data berhasil diperbarui.');
+        if ($request->hasFile('file')) {
+            // handle file, e.g. $order->image = $request->file('file')->store('images');
+        }
+
+        $order->save();
+
+        return redirect()->route('kain_keluar.index')->with('success', 'Data berhasil diperbarui.');
     }
 }
