@@ -13,4 +13,4 @@ class UpdateStatusEnumInOrdersTable extends Migration
     {
         DB::statement("ALTER TABLE orders MODIFY status ENUM('diproses', 'sampai_tujuan', 'cancelled') NOT NULL");
     }
-}
+};

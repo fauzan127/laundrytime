@@ -9,21 +9,11 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->string('payment_status')->default('belum_bayar');
-            $table->date('transaction_date')->nullable();
-        });
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn(['payment_status', 'transaction_date']);
-        });
-    }
+    public function up()
+{
+    Schema::table('orders', function (Blueprint $table) {
+        $table->string('payment_status')->default('belum_bayar');
+        $table->date('transaction_date')->nullable();
+    });
+}
 };
