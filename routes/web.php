@@ -4,13 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\KainMasukController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PaymentController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
 
 Route::get('/', function () {
     return view('welcome');
@@ -38,5 +34,16 @@ Route::middleware('auth_or_403')->group(function () {
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
+
 // Auth routes bawaan Laravel Breeze/Fortify
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
+
+Route::middleware('auth_or_403')->group(function () {
+    Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
+    Route::get('/payment/{id}', [PaymentController::class, 'pay'])->name('payment.pay');
+});
+
 require __DIR__.'/auth.php';
