@@ -16,4 +16,4 @@ return new class extends Migration
         $table->date('transaction_date')->nullable();
     });
 }
-}
+};
