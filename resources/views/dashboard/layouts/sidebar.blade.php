@@ -41,11 +41,6 @@
         <span class="material-icons-outlined">motorcycle</span>
         <span class="hidden opacity-0 sidebar-text transition-opacity duration-300">Tracking</span>
       </a>
-      <a href="/dashboard/payment"
-        class="nav-item flex items-center justify-center w-4/5 hover:bg-lime-800 px-4 py-2 text-white space-x-3 rounded-md {{ Request::is('dashboard/payment') ? 'bg-lime-800' : '' }}">
-        <span class="material-icons-outlined">credit_card</span>
-        <span class="hidden opacity-0 sidebar-text transition-opacity duration-300">Payment</span>
-      </a>
       <a href="/dashboard/report"
         class="nav-item flex items-center justify-center w-4/5 hover:bg-lime-800 px-4 py-2 text-white space-x-3 rounded-md {{ Request::is('dashboard/report') ? 'bg-lime-800' : '' }}">
         <span class="material-icons-outlined">analytics</span>
@@ -65,8 +60,8 @@
         <span class="material-icons-outlined">content_paste</span>
         <span class="hidden opacity-0 sidebar-text transition-opacity duration-300">Order</span>
       </a>
-      <a href="/dashboard/payment"
-        class="nav-item flex items-center justify-center w-4/5 hover:bg-lime-800 px-4 py-2 text-white space-x-3 rounded-md {{ Request::is('dashboard/payment') ? 'bg-lime-800' : '' }}">
+      <a href="{{ route('payment.index') }}"
+        class="nav-item flex items-center justify-center w-4/5 hover:bg-lime-800 px-4 py-2 text-white space-x-3 rounded-md {{ Request::is('payment') ? 'bg-lime-800' : '' }}">
         <span class="material-icons-outlined">credit_card</span>
         <span class="hidden opacity-0 sidebar-text transition-opacity duration-300">Payment</span>
       </a>
