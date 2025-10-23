@@ -39,6 +39,7 @@ Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallba
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/report', [DashboardController::class, 'report'])->name('dashboard.report');
 });
 
 Route::middleware('auth_or_403')->group(function () {
