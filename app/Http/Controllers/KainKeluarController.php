@@ -7,73 +7,68 @@ use App\Models\Order;
 
 class KainKeluarController extends Controller
 {
-    // Tampilkan dashboard kain keluar
+    // === 1. Halaman utama (Dashboard Kain Keluar) ===
     public function index()
     {
-        $data = Order::orderBy('id', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $data = Order::orderBy('id', 'asc')->get(['id', 'customer_name', 'delivery_type', 'status']);
         return view('dashboardkainkeluar', compact('data'));
     }
 
+    // === 2. Update Status via AJAX ===
     public function updateStatus(Request $request)
-{
-    $request->validate([
-        'order_id' => 'required|exists:orders,id',
-        'status' => 'required|in:Pending,Diproses,Sampai Tujuan,Antar,'
-    ]);
-
-    try {
-        $order = Order::find($request->order_id);
-        $order->status = $request->status;
-        $order->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Status berhasil diupdate'
+    {
+        $request->validate([
+            'order_id' => 'required|exists:orders,id',
+            'status' => 'required|in:diproses,slap_antar,antar,sampal_tujuan,cancelled',
         ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal mengupdate status'
-        ], 500);
-    }
-}
 
-    // Tampilkan detail kain keluar
+        try {
+            $order = Order::findOrFail($request->order_id);
+            $order->status = $request->status;
+            $order->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status berhasil diperbarui.',
+                'updated_status' => $order->status
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memperbarui status.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // === 3. Halaman detail kain keluar ===
     public function detailkainkeluar($id)
     {
         $data = Order::find($id);
-        
         if (!$data) {
             abort(404, 'Data tidak ditemukan');
         }
-        
         return view('detailkainkeluar', compact('data'));
     }
 
-    // API untuk JS
+    // === 4. API list untuk AJAX (fetch data tabel) ===
     public function apiList()
     {
-        $data = Order::orderBy('id', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $data = Order::orderBy('id', 'asc')->get();
         return response()->json($data);
     }
 
-    
-    // Method store dengan field yang sesuai tabel
+    // === 5. Simpan data baru ===
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',    // SESUAI TABEL
-            'customer_phone' => 'required|string|max:255',           // SESUAI TABEL  
-            'status' => 'required|string|max:50',           // SESUAI TABEL
-            'weight' => 'required|numeric|min:0',            // SESUAI TABEL
-            'status' => 'required|in:Diproses,,Pengantaran,Sampai Tujuan',
-            'delivery_type' => 'nullable|string',
-            'address' => 'nullable|string',
-            'notes' => 'nullable|string',
+            'nama_pelanggan' => 'required|string|max:255',
+            'no_hp' => 'required|string|max:20',
+            'layanan' => 'required|string|max:100',
+            'berat' => 'required|numeric|min:0',
+            'status' => 'required|in:diproses,slap_antar,antar,sampal_tujuan,cancelled',
+            'alamat' => 'nullable|string',
+            'catatan' => 'nullable|string',
         ]);
 
         Order::create($validated);
@@ -82,20 +77,19 @@ class KainKeluarController extends Controller
             ->with('success', 'Data berhasil ditambahkan.');
     }
 
-    // Method update juga sesuaikan
+    // === 6. Update data lama ===
     public function update(Request $request, $id)
     {
         $data = Order::findOrFail($id);
 
         $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'customer_phone' => 'required|string|max:255', 
-            'status' => 'required|string|max:50',
-            'weight' => 'required|numeric|min:0',
-            'status' => 'required|in:Diproses,Sampai Tujuan,Antar,',
-            'delivery_type' => 'nullable|string',
-            'address' => 'nullable|string',
-            'notes' => 'nullable|string',
+            'nama_pelanggan' => 'required|string|max:255',
+            'no_hp' => 'required|string|max:20',
+            'layanan' => 'required|string|max:100',
+            'berat' => 'required|numeric|min:0',
+            'status' => 'required|in:diproses,slap_antar,antar,sampal_tujuan,cancelled',
+            'alamat' => 'nullable|string',
+            'catatan' => 'nullable|string',
         ]);
 
         $data->update($validated);
@@ -103,6 +97,4 @@ class KainKeluarController extends Controller
         return redirect()->route('kain_keluar.index')
             ->with('success', 'Data berhasil diperbarui.');
     }
-
-    
 }

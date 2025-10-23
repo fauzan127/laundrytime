@@ -2,69 +2,94 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Models\Order;
+use Illuminate\Support\Facades\Validator;
 
-class OrderController extends Controller
+class OrdersController extends Controller
 {
-    // ... method yang sudah ada ...
-
     /**
-     * Update status order via API
+     * 🔹 API: Ambil semua data pesanan (untuk fetch tabel via JS)
+     * Route: GET /api/orders/list
      */
-    public function updateStatus(Request $request)
+    public function getOrders()
     {
         try {
-            $request->validate([
-                'order_id' => 'required|integer|exists:orders,id',
-                'status' => 'required|string|in:Diproses,Siap Diantar,Antar,Selesai,Dalam Pengerjaan,Pengantaran,Sampai Tujuan'
-            ]);
+            // Ambil semua data dengan kolom yang dibutuhkan frontend
+            $orders = Order::orderBy('id', 'asc')
+                ->get(['id', 'nama_pelanggan as customer_name', 'no_hp as customer_phone', 'layanan as delivery_type', 'berat as weight', 'status', 'created_at']);
 
-            $order = Order::findOrFail($request->order_id);
-            
-            $order->update([
-                'status' => $request->status
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Status berhasil diupdate',
-                'data' => [
-                    'id' => $order->id,
-                    'status' => $order->status
-                ]
-            ]);
-
+            return response()->json($orders);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'Gagal memuat data pesanan',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
-     * Show detail order for kain keluar
+     * 🔹 API: Update status pesanan
+     * Route: POST /api/update-status
      */
-    public function showDetail($id)
+    public function updateStatus(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'order_id' => 'required|integer|exists:orders,id',
+            'status'   => 'required|string|in:Pending,Diproses,Antar,Sampai Tujuan',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
         try {
-            $data = Order::where('id', $id)
-                        ->select(
-                            'customer_name as nama',
-                            'customer_phone as no_hp',
-                            'status',
-                            'weight as berat',
-                            'status as status_layanan',
-                            'created_at as tanggal_masuk'
+            $order = Order::findOrFail($request->order_id);
+            $order->status = $request->status;
+            $order->save();
 
-                        )
-                        ->firstOrFail();
-
-            return view('detailkainkeluar', compact('data'));
-            
+            return response()->json([
+                'success' => true,
+                'message' => "Status pesanan #{$order->id} berhasil diubah menjadi {$order->status}",
+                'order'   => $order, // ⬅️ kirim data terbaru biar JS bisa langsung update tampilan
+            ]);
         } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengupdate status pesanan',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * 🔹 Halaman dashboard kain keluar (Blade)
+     * Route: GET /dashboard/kainkeluar
+     */
+    // Di OrdersController  
+public function index()
+{
+    $data = Order::orderBy('created_at', 'asc')->get(); // Sudah benar
+    return view('dashboardkainkeluar', compact('data'));
+}
+
+    /**
+     * 🔹 Halaman detail kain keluar
+     * Route: GET /detailkainkeluar/{id}
+     */
+    public function detail($id)
+    {
+        $data = Order::find($id);
+
+        if (!$data) {
             abort(404, 'Data tidak ditemukan');
         }
+
+        return view('detailkainkeluar', compact('data'));
     }
 }

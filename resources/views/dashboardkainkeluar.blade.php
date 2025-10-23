@@ -102,31 +102,24 @@
     </thead>
 
     <tbody id="data-transaksi" class="bg-gray-100 text-center">
-  @foreach($data as $item)
-  <tr>
-    <td class="px-4 py-2 border">{{ $item->id }}</td>
-    <td class="px-4 py-2 border">{{ $item->customer_name }}</td>
-    <td class="px-4 py-2 border">{{ $item->customer_phone }}</td>
-    <td class="px-4 py-2 border">{{ $item->delivery_type }}</td>
-    <td class="px-4 py-2 border">{{ $item->weight ? number_format($item->weight, 2) . ' kg' : '-'}}</td>
-    <td class="px-4 py-2 border text-center">
-      <select class="status-dropdown" data-order-id="{{ $item->id }}">
-            <option value="Pending" {{ $item->status == 'Pending' ? 'selected' : '' }}>Pending</option>
-            <option value="Diproses" {{ $item->status == 'Processing' ? 'selected' : '' }}>Diproses</option>
-            <option value="Sampai Tujuan" {{ $item->status == 'Completed' ? 'selected' : '' }}>Selesai</option>
-            <option value="Antar" {{ $item->status == 'Cancelled' ? 'selected' : '' }}>Dibatalkan</option>
+ @foreach ($data as $index => $item)
+<tr>
+    <td class="border px-4 py-2 text-center">{{ $item->id }}</td>
+  <td class="border px-4 py-2">{{ $item->nama_pelanggan }}</td>
+  <td class="border px-4 py-2">{{ $item->layanan }}</td>
+  <td class="border px-4 py-2">{{ $item->status }}</td>
+    <td>
+        <select class="status-dropdown border rounded p-1" data-order-id="{{ $item->id }}">
+            <option value="diproses" {{ $item->status == 'diproses' ? 'selected' : '' }}>Diproses</option>
+            <option value="slap_antar" {{ $item->status == 'slap_antar' ? 'selected' : '' }}>Siap Antar</option>
+            <option value="antar" {{ $item->status == 'antar' ? 'selected' : '' }}>Antar</option>
+            <option value="sampal_tujuan" {{ $item->status == 'sampal_tujuan' ? 'selected' : '' }}>Sampai Tujuan</option>
+            <option value="cancelled" {{ $item->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
         </select>
     </td>
-    <td class="px-4 py-2 border">{{ $item->created_at }}</td>
-    <td class="px-4 py-2 border text-center">
-  <a href="{{ route('detailkainkeluar', ['id' => $item->id]) }}" 
-     class="bg-[#35623E] hover:bg-[#2b4d31] text-white p-2 rounded-md inline-flex items-center justify-center transition-all"
-     title="Lihat Detail">
-    <span class="material-icons-outlined text-base">visibility</span>
-  </a>
-</td>
-  </tr>
-  @endforeach
+</tr>
+@endforeach
+
 </tbody>
   </table>
 </div>
@@ -159,20 +152,34 @@ let currentPage = 1;
 let rowsPerPage = 10;
 let allData = [];
 
+// 🔹 TOGGLE SIDEBAR
+toggleBtn.addEventListener('click', () => {
+    const isExpanded = sidebar.classList.toggle('w-64');
+    sidebar.classList.toggle('w-20');
+    
+    sidebarTexts.forEach(text => text.classList.toggle('hidden'));
+    sidebarTitle.classList.toggle('hidden');
+    
+    toggleIcon.textContent = isExpanded ? 'close' : 'menu';
+});
+
 // 🔹 UPDATE STATUS KE DATABASE
 async function updateStatus(orderId, newStatus) {
-    console.log('🔄 Update status:', orderId, newStatus);
+    console.log('🔄 Update status:', { orderId, newStatus });
+    
     try {
         if (!confirm(`Ubah status pesanan ID ${orderId} menjadi "${newStatus}"?`)) {
+            // Reset dropdown ke nilai semula jika user batal
             loadDataTransaksi();
             return;
         }
 
-        const response = await fetch('/api/update-status', {
+        const response = await fetch('/api/kainkeluar/update-status', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
             },
             body: JSON.stringify({
                 order_id: orderId,
@@ -180,55 +187,71 @@ async function updateStatus(orderId, newStatus) {
             })
         });
 
+        console.log('📡 Response status:', response.status);
         const result = await response.json();
-        console.log('📡 Update response:', result);
+        console.log('📡 Response data:', result);
 
         if (result.success) {
-            alert(`✅ Status pesanan ID ${orderId} berhasil diubah menjadi ${newStatus}`);
-            loadDataTransaksi();
+            alert(`✅ Status pesanan berhasil diubah menjadi "${newStatus}"`);
+            loadDataTransaksi(); // refresh tabel
         } else {
             alert(`❌ Gagal update status: ${result.message || 'Unknown error'}`);
             loadDataTransaksi();
         }
     } catch (error) {
         console.error('❌ Error update status:', error);
-        alert('Terjadi kesalahan saat update status.');
+        alert('❌ Terjadi kesalahan jaringan saat update status.');
         loadDataTransaksi();
     }
 }
 
 // 🔹 INISIALISASI DROPDOWN STATUS
+// 🔹 INISIALISASI DROPDOWN STATUS (FIXED)
 function initializeDropdowns() {
-    document.querySelectorAll('.status-dropdown').forEach(dropdown => {
-        dropdown.addEventListener('change', function() {
-            const orderId = this.getAttribute('data-order-id');
-            const newStatus = this.value;
-            updateStatus(orderId, newStatus);
-        });
+  document.querySelectorAll('.status-dropdown').forEach(select => {
+    select.addEventListener('change', function() {
+      const orderId = this.dataset.orderId; // ambil dari data-order-id
+      const newStatus = this.value;
+      updateStatus(orderId, newStatus); // panggil fungsi utama yang benar
     });
+  });
 }
+
 
 // 🔹 CARI DATA
 function handleSearch() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const filteredData = allData.filter(row => 
-        (row.customer_name || '').toLowerCase().includes(searchTerm) ||
-        (row.customer_phone || '').toLowerCase().includes(searchTerm) ||
-        (row.delivery_type || '').toLowerCase().includes(searchTerm) ||
-        (row.status || '').toLowerCase().includes(searchTerm)
-    );
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    
+    if (searchTerm === '') {
+        renderTablePage(1, allData);
+        return;
+    }
 
-    currentPage = 1;
-    renderTablePage(currentPage, filteredData);
+    const filteredData = allData.filter(row => {
+        return (
+            (row.customer_name || '').toLowerCase().includes(searchTerm) ||
+            (row.customer_phone || '').toLowerCase().includes(searchTerm) ||
+            (row.delivery_type || '').toLowerCase().includes(searchTerm) ||
+            (row.status || '').toLowerCase().includes(searchTerm) ||
+            (row.order_number || '').toLowerCase().includes(searchTerm)
+        );
+    });
+
+    renderTablePage(1, filteredData);
 }
 
-// 🔹 TAMPILKAN TABEL
+// 🔹 RENDER TABEL
 function renderTablePage(page, data = allData) {
+    if (!tbodyTransaksi) return;
     tbodyTransaksi.innerHTML = '';
 
     if (data.length === 0) {
         tbodyTransaksi.innerHTML = `
-        <tr><td colspan="8" class="text-center py-4 text-gray-500">Tidak ada data ditemukan.</td></tr>`;
+            <tr>
+                <td colspan="8" class="text-center py-4 text-gray-500">
+                    ${searchInput.value ? 'Tidak ada data yang cocok.' : 'Tidak ada data pesanan.'}
+                </td>
+            </tr>`;
         renderPagination(data);
         return;
     }
@@ -239,33 +262,45 @@ function renderTablePage(page, data = allData) {
     const pageData = data.slice(start, end);
 
     pageData.forEach((row, index) => {
-        const options = ['Pending', 'Diproses', 'Antar', 'Sampai Tujuan']
-            .map(status => `<option value="${status}" ${row.status === status ? 'selected' : ''}>${status}</option>`)
-            .join('');
+        const rowNumber = start + index + 1;
+        const statusOptions = [
+    { value: 'diproses', label: 'Diproses' },
+    { value: 'slap_antar', label: 'Siap Antar' },
+    { value: 'antar', label: 'Antar' },
+    { value: 'sampal_tujuan', label: 'Sampai Tujuan' },
+    { value: 'cancelled', label: 'Cancelled' }
+];
 
-        tbodyTransaksi.innerHTML += `
-        <tr>
-            <td class="border px-4 py-2">${start + index + 1}</td>
+
+        const optionsHTML = statusOptions.map(opt => 
+            `<option value="${opt.value}" ${row.status === opt.value ? 'selected' : ''}>
+                ${opt.label}
+            </option>`
+        ).join('');
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="border px-4 py-2">${rowNumber}</td>
             <td class="border px-4 py-2">${row.customer_name || '-'}</td>
             <td class="border px-4 py-2">${row.customer_phone || '-'}</td>
             <td class="border px-4 py-2">${row.delivery_type || '-'}</td>
             <td class="border px-4 py-2">${row.weight ? parseFloat(row.weight).toFixed(2) + ' kg' : '-'}</td>
             <td class="border px-4 py-2">
-                <select class="status-dropdown border rounded p-1 text-sm" data-order-id="${row.id}">
-                    ${options}
+                <select class="status-dropdown border rounded p-1 text-sm w-full" data-order-id="${row.id}">
+                    ${optionsHTML}
                 </select>
             </td>
             <td class="border px-4 py-2">${formatDate(row.created_at)}</td>
             <td class="border px-4 py-2 text-center">
-                <a href="/detailkainkeluar/${row.id}" 
-                   class="text-[#35623E] hover:text-lime-700 transition-colors">
-                   <span class="material-icons-outlined text-lg">visibility</span>
+                <a href="/detailkainkeluar/${row.id}" class="text-[#35623E] hover:text-lime-700 transition-colors inline-block">
+                    <span class="material-icons-outlined text-lg">visibility</span>
                 </a>
             </td>
-        </tr>`;
+        `;
+        tbodyTransaksi.appendChild(tr);
     });
 
-    initializeDropdowns();
+    setTimeout(() => initializeDropdowns(), 100);
     renderPagination(data);
 }
 
@@ -273,74 +308,116 @@ function renderTablePage(page, data = allData) {
 function formatDate(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
-    return date.toLocaleString('id-ID', { 
-        day: '2-digit', month: '2-digit', year: 'numeric', 
-        hour: '2-digit', minute: '2-digit' 
+    if (isNaN(date)) return '-';
+    return date.toLocaleString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     });
 }
 
 // 🔹 PAGINATION
 function renderPagination(data = allData) {
     const container = document.getElementById('pagination-container');
+    if (!container) return;
+    
     const totalPages = Math.ceil(data.length / rowsPerPage);
-    if (totalPages <= 1) return container.innerHTML = '';
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
 
     container.innerHTML = `
         <div class="flex items-center justify-center space-x-4 mt-4">
             <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}
-                class="px-3 py-1 bg-gray-200 rounded ${currentPage === 1 ? 'opacity-50' : 'hover:bg-gray-300'}">Prev</button>
-            <span>${currentPage} / ${totalPages}</span>
+                class="px-4 py-2 bg-gray-200 rounded-lg ${
+                    currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300 transition'
+                }">← Prev</button>
+            
+            <span class="px-4 py-2 bg-white border rounded-lg font-semibold">
+                Halaman ${currentPage} dari ${totalPages}
+            </span>
+            
             <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}
-                class="px-3 py-1 bg-gray-200 rounded ${currentPage === totalPages ? 'opacity-50' : 'hover:bg-gray-300'}">Next</button>
-        </div>
-    `;
+                class="px-4 py-2 bg-gray-200 rounded-lg ${
+                    currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300 transition'
+                }">Next →</button>
+        </div>`;
 }
+
+// 🔹 GANTI HALAMAN
 function changePage(page) {
-    if (page < 1 || page > Math.ceil(allData.length / rowsPerPage)) return;
+    const totalPages = Math.ceil(allData.length / rowsPerPage);
+    if (page < 1 || page > totalPages) return;
     currentPage = page;
-    renderTablePage(currentPage, allData);
+    renderTablePage(currentPage);
+    document.querySelector('.overflow-x-auto')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // 🔹 LOAD DATA DARI DATABASE
 async function loadDataTransaksi() {
+    if (!tbodyTransaksi) return;
+
+    tbodyTransaksi.innerHTML = `
+        <tr>
+            <td colspan="8" class="text-center py-8 text-gray-500">
+                <div class="flex justify-center items-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-700"></div>
+                    <span class="ml-3">Memuat data pesanan...</span>
+                </div>
+            </td>
+        </tr>`;
+
     try {
-        tbodyTransaksi.innerHTML = `
-        <tr><td colspan="8" class="text-center py-4 text-gray-500">
-        <div class="flex justify-center items-center">
-            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-green-700"></div>
-            <span class="ml-2">Memuat data...</span>
-        </div></td></tr>`;
+        console.log('📡 Fetching data from /api/orders/list...');
+        const response = await fetch('/api/kainkeluar/list');
 
-        const response = await fetch('/api/orders/list');
-        if (!response.ok) throw new Error('Gagal memuat data');
-
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        console.log('📦 Data loaded:', data);
-
-        allData = Array.isArray(data) ? data.reverse() : [];
+        console.log('📦 Data loaded successfully:', data);
+        allData = Array.isArray(data) ? data : [];
         renderTablePage(currentPage, allData);
     } catch (error) {
-        console.error('Error loading data:', error);
+        console.error('❌ Error loading data:', error);
         tbodyTransaksi.innerHTML = `
-        <tr><td colspan="8" class="text-center text-red-600 py-4">
-        Gagal memuat data: ${error.message}</td></tr>`;
+            <tr>
+                <td colspan="8" class="text-center text-red-600 py-8">
+                    <div class="flex flex-col items-center">
+                        <span class="material-icons-outlined text-4xl mb-2">error</span>
+                        <p class="font-semibold">Gagal memuat data</p>
+                        <p class="text-sm mt-1">${error.message}</p>
+                        <button onclick="loadDataTransaksi()" 
+                            class="mt-3 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                            Coba Lagi
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
     }
 }
 
-// 🔹 EVENT SEARCH
-if (searchInput) {
-    searchInput.addEventListener('input', handleSearch);
-    searchInput.addEventListener('keypress', e => {
-        if (e.key === 'Enter') handleSearch();
-    });
+// 🔹 INISIALISASI
+function initializeApp() {
+    console.log('🚀 Initializing aplikasi...');
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+    }
+    loadDataTransaksi();
+    setInterval(() => {
+        if (!searchInput.value) loadDataTransaksi();
+    }, 30000);
 }
 
-// 🔹 SAAT HALAMAN DILOAD
+// 🔹 ON LOAD
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 DOM Ready, loading data...');
-    initializeDropdowns();
-    loadDataTransaksi();
+    setTimeout(initializeApp, 100);
 });
+
+window.changePage = changePage;
+window.loadDataTransaksi = loadDataTransaksi;
+window.handleSearch = handleSearch;
 </script>
 
 

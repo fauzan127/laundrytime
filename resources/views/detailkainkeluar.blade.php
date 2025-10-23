@@ -16,7 +16,8 @@
 <div class="mx-auto">
     <!-- Header -->
     <div class="w-full bg-[#518641] py-3 px-4 mb-8">
-        <a href="{{ route('orders.index') }}" 
+        <a href="{{ route('kain_keluar.index') }}"
+ 
            class="text-3xl text-white font-light hover:text-gray-200">
             &lt;
         </a>
@@ -66,7 +67,7 @@
 
         <!-- Tombol Aksi -->
         <div class="flex gap-3 mt-6">
-            <a href="{{ route('orders.index') }}" 
+            <a href="{{ route('kain_keluar.index') }}"
                class="flex-1 bg-gray-500 hover:bg-gray-600 text-white text-center py-2 px-4 rounded-md transition-all">
                 Kembali
             </a>
