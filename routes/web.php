@@ -32,9 +32,6 @@ Route::middleware('auth_or_403')->group(function () {
 Route::middleware('auth_or_403')->group(function () {
     // Manajemen Order
     Route::resource('order', OrderController::class);
-
-    // Manajemen Kain Masuk
-    Route::resource('kain-masuk', KainMasukController::class);
 });
 
 // Google OAuth
