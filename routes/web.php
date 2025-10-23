@@ -6,6 +6,7 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentCallbackController;
 
 
 Route::get('/', function () {
@@ -42,9 +43,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/report', [DashboardController::class, 'report'])->name('dashboard.report');
 });
 
+Route::post('/payment/callback', [PaymentCallbackController::class, 'handle']);
+Route::post('/test-callback', function () {
+    return response()->json(['message' => 'Callback OK']);
+});
+
 Route::middleware('auth_or_403')->group(function () {
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
     Route::get('/payment/{id}', [PaymentController::class, 'pay'])->name('payment.pay');
+    Route::get('/payment/unfinish', function () {
+        return view('payment.unfinish');
+    });
+    Route::get('/payment/error', function () {
+        return view('payment.error');
+    });
 });
+
 
 require __DIR__.'/auth.php';

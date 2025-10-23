@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Payment;
 
 class Order extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'order_number',
         'customer_name',
@@ -17,17 +19,18 @@ class Order extends Model
         'address',
         'pickup_time',
         'pickup_date',
+        'weight',
         'total_price',
         'notes',
         'order_date',
-        'user_id'
+        'user_id',
     ];
 
     protected $casts = [
         'total_price' => 'decimal:2',
         'order_date' => 'datetime',
         'pickup_date' => 'date',
-        'pickup_time' => 'datetime'
+        'pickup_time' => 'datetime',
     ];
 
     public function items()
@@ -40,12 +43,22 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
+    }
+
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($order) {
-            $order->order_number = 'ORD-' . date('Ymd') . '-' . str_pad(Order::whereDate('created_at', today())->count() + 1, 4, '0', STR_PAD_LEFT);
+            $order->order_number = 'ORD-' . date('Ymd') . '-' . str_pad(
+                Order::whereDate('created_at', today())->count() + 1,
+                4,
+                '0',
+                STR_PAD_LEFT
+            );
         });
     }
 }
