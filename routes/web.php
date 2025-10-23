@@ -48,8 +48,8 @@ Route::post('/api/update-status', [KainKeluarController::class, 'updateStatus'])
 // ============
 // PESANAN (opsional)
 // ============
-Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
-Route::get('/api/pesanan/{id_pesanan}/detail', [PesananController::class, 'getDetailPesanan'])->name('pesanan.detail');
+// Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
+// Route::get('/api/pesanan/{id_pesanan}/detail', [PesananController::class, 'getDetailPesanan'])->name('pesanan.detail');
 
 // ============
 // ERROR PAGES
@@ -64,8 +64,6 @@ Route::get('/kainkeluar/{id}', [KainKeluarController::class, 'detailkainkeluar']
 
 // Update status via AJAX
 Route::post('/kainkeluar/update-status', [KainKeluarController::class, 'updateStatus'])->name('kain_keluar.updateStatus');
-Route::post('/kainkeluar/update-status', [KainKeluarController::class, 'updateStatus'])->name('kain_keluar.updateStatus');
-
 
 // --- View halaman utama dan detail ---
 Route::get('/dashboard/kainkeluar', [OrdersController::class, 'index'])->name('dashboard.kainkeluar');
@@ -75,24 +73,18 @@ Route::get('/detailkainkeluar/{id}', [OrdersController::class, 'detail'])->name(
 Route::get('/api/orders/list', [OrdersController::class, 'getOrders'])->name('api.orders.list');
 Route::post('/api/update-status', [OrdersController::class, 'updateStatus'])->name('api.update.status');
 
+use App\Http\Controllers\UpdateStatusController;
+
+// Routes for UpdateStatusController (updatestatus.php)
+Route::get('/api/status-options', [UpdateStatusController::class, 'getStatusOptions'])->name('api.status-options');
+Route::post('/api/bulk-update-status', [UpdateStatusController::class, 'bulkUpdateStatus'])->name('api.bulk-update-status');
+
 Route::get('/kainkeluar', [KainKeluarController::class, 'index'])->name('kain_keluar.index');
 Route::get('/detailkainkeluar/{id}', [KainKeluarController::class, 'detailkainkeluar'])->name('kain_keluar.detail');
 Route::post('/kainkeluar/update-status', [KainKeluarController::class, 'updateStatus'])->name('kain_keluar.updateStatus');
 Route::get('/api/kainkeluar', [KainKeluarController::class, 'apiList'])->name('kain_keluar.api');
 Route::post('/kainkeluar/store', [KainKeluarController::class, 'store'])->name('kain_keluar.store');
 Route::put('/kainkeluar/update/{id}', [KainKeluarController::class, 'update'])->name('kain_keluar.update');
-
-Route::post('/kainkeluar/update-status', [KainKeluarController::class, 'updateStatus'])->name('kain_keluar.updateStatus');
-
-// Route untuk API update status
-
-Route::post('/api/update-status', [KainKeluarController::class, 'updateStatus']);
-Route::get('/api/orders/list', [KainKeluarController::class, 'apiList']);
-
-
-Route::post('/kainkeluar/update-status', [KainKeluarController::class, 'updateStatus']);
-Route::post('/api/kainkeluar/update-status', [KainKeluarController::class, 'updateStatus'])
-    ->name('api.kainkeluar.updateStatus');
 
 // API untuk ambil list
 Route::get('/api/kainkeluar/list', [KainKeluarController::class, 'apiList'])
@@ -103,6 +95,5 @@ Route::post('/api/kainkeluar/update-status', [KainKeluarController::class, 'upda
     ->name('api.kainkeluar.updateStatus');
 
 Route::get('/kainkeluar/list', [KainKeluarController::class, 'apiList']);
-Route::post('/kainkeluar/update-status', [KainKeluarController::class, 'updateStatus']);
 
 require __DIR__ . '/auth.php';

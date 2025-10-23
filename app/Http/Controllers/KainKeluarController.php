@@ -71,7 +71,18 @@ class KainKeluarController extends Controller
             'catatan' => 'nullable|string',
         ]);
 
-        Order::create($validated);
+        Order::create([
+            'customer_name' => $validated['nama_pelanggan'],
+            'customer_phone' => $validated['no_hp'],
+            'delivery_type' => $validated['layanan'],
+            'weight' => $validated['berat'],
+            'status' => $validated['status'],
+            'address' => $validated['alamat'],
+            'notes' => $validated['catatan'],
+            'total_price' => 0, // Default value
+            'order_date' => now(),
+            'user_id' => auth()->id(),
+        ]);
 
         return redirect()->route('kain_keluar.index')
             ->with('success', 'Data berhasil ditambahkan.');
@@ -92,7 +103,15 @@ class KainKeluarController extends Controller
             'catatan' => 'nullable|string',
         ]);
 
-        $data->update($validated);
+        $data->update([
+            'customer_name' => $validated['nama_pelanggan'],
+            'customer_phone' => $validated['no_hp'],
+            'delivery_type' => $validated['layanan'],
+            'weight' => $validated['berat'],
+            'status' => $validated['status'],
+            'address' => $validated['alamat'],
+            'notes' => $validated['catatan'],
+        ]);
 
         return redirect()->route('kain_keluar.index')
             ->with('success', 'Data berhasil diperbarui.');

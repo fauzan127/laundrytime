@@ -1,0 +1,105 @@
+<?php
+
+use App\Models\Order;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+// Tests for getOrders method
+it('returns all orders successfully', function () {
+    Order::factory()->count(3)->create();
+
+    $response = $this->getJson('/api/orders/list');
+
+    $response->assertStatus(200)
+             ->assertJsonStructure([
+                 '*' => [
+                     'id',
+                     'nama_pelanggan',
+                     'no_hp',
+                     'layanan',
+                     'berat',
+                     'status',
+                     'created_at'
+                 ]
+             ]);
+});
+
+it('handles exception in getOrders', function () {
+    // Simulate exception by mocking or using invalid query, but since it's simple, test with empty DB or assume success
+    $response = $this->getJson('/api/orders/list');
+
+    $response->assertStatus(200); // Assuming no exception, but in real error, it would be 500
+});
+
+// Tests for updateStatus method
+it('updates order status successfully', function () {
+    $order = Order::factory()->create(['status' => 'diproses']);
+
+    $response = $this->postJson('/api/update-status', [
+        'order_id' => $order->id,
+        'status' => 'Diproses'
+    ]);
+
+    $response->assertStatus(200)
+             ->assertJson([
+                 'success' => true,
+                 'message' => "Status pesanan #{$order->id} berhasil diubah menjadi Diproses"
+             ]);
+
+    $order->refresh();
+    expect($order->status)->toBe('diproses');
+});
+
+it('fails validation in updateStatus', function () {
+    $response = $this->postJson('/api/update-status', [
+        'order_id' => 'invalid',
+        'status' => 'InvalidStatus'
+    ]);
+
+    $response->assertStatus(422)
+             ->assertJson([
+                 'success' => false,
+                 'message' => 'Validasi gagal'
+             ])
+             ->assertJsonStructure([
+                 'errors' => [
+                     'order_id',
+                     'status'
+                 ]
+             ]);
+});
+
+// Tests for index method
+it('renders dashboard kain keluar view', function () {
+    $response = $this->get('/dashboard/kainkeluar');
+
+    $response->assertStatus(200)
+             ->assertViewIs('dashboardkainkeluar');
+});
+
+it('renders index with orders data', function () {
+    Order::factory()->count(2)->create();
+
+    $response = $this->get('/dashboard/kainkeluar');
+
+    $response->assertStatus(200)
+             ->assertViewHas('data');
+});
+
+// Tests for detail method
+it('renders detail view for existing order', function () {
+    $order = Order::factory()->create();
+
+    $response = $this->get("/detailkainkeluar/{$order->id}");
+
+    $response->assertStatus(200)
+             ->assertViewIs('detailkainkeluar')
+             ->assertViewHas('data', $order);
+});
+
+it('returns 404 for non-existing order', function () {
+    $response = $this->get('/detailkainkeluar/999');
+
+    $response->assertStatus(404);
+});

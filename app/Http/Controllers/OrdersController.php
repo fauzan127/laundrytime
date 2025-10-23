@@ -17,7 +17,7 @@ class OrdersController extends Controller
         try {
             // Ambil semua data dengan kolom yang dibutuhkan frontend
             $orders = Order::orderBy('id', 'asc')
-                ->get(['id', 'nama_pelanggan as customer_name', 'no_hp as customer_phone', 'layanan as delivery_type', 'berat as weight', 'status', 'created_at']);
+                ->get(['id', 'customer_name as nama_pelanggan', 'customer_phone as no_hp', 'delivery_type as layanan', 'weight as berat', 'status', 'created_at']);
 
             return response()->json($orders);
         } catch (\Exception $e) {
