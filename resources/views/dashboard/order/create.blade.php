@@ -66,19 +66,19 @@
                     <div class="grid grid-cols-2 gap-4">
                         <!-- Kolom Kiri -->
                         <div class="space-y-2">
-                            @foreach($serviceTypes->where('name', '!=', 'Express')->take(2) as $service)
-                                <label class="flex items-start gap-2 text-sm">
-                                    <input 
-                                        type="checkbox" 
-                                        class="w-4 h-4 mt-1 text-green-600 border-gray-300 rounded focus:ring-green-500 service-checkbox"
-                                        data-service-id="{{ $service->id }}"
-                                        data-service-name="{{ $service->name }}"
-                                        data-service-price="{{ $service->price_per_kg }}"
-                                        {{ collect(old('items', []))->contains('service_type_id', $service->id) ? 'checked' : '' }}
-                                    >
-                                    <span>{{ $service->name }} (Rp{{ number_format($service->price_per_kg, 0, ',', '.') }}/kg)</span>
-                                </label>
-                            @endforeach
+                        @foreach($serviceTypes->where('name', '!=', 'Express')->take(2) as $service)
+    <label class="flex items-start gap-2 text-sm">
+        <input 
+            type="checkbox" 
+            class="w-4 h-4 mt-1 text-green-600 border-gray-300 rounded focus:ring-green-500 service-checkbox"
+            data-service-id="{{ $service->id }}"
+            data-service-name="{{ $service->name }}"
+            data-service-price="{{ $service->price_per_kg }}"
+        >
+        <span>{{ $service->name }} (Rp{{ number_format($service->price_per_kg, 0, ',', '.') }}/kg)</span>
+    </label>
+@endforeach
+
                         </div>
 
                         <!-- Kolom Kanan - Express -->
@@ -240,6 +240,53 @@
 
             <!-- Hidden fields untuk items yang dipilih -->
             <div id="selectedItemsContainer"></div>
+
+            <!-- Status Pembayaran & Tanggal Transaksi -->
+<div class="border-4 border-green-500 rounded-lg p-4 mb-6">
+    <h2 class="text-center font-bold text-gray-800 mb-4 bg-green-200 py-2 rounded">
+        Informasi Pembayaran
+    </h2>
+    
+    <div class="grid grid-cols-2 gap-6">
+        <!-- Status Pembayaran -->
+        <div>
+            <label for="payment_status" class="block text-sm font-medium text-gray-700 mb-2">
+                Status Pembayaran
+            </label>
+            <select 
+                name="payment_status" 
+                id="payment_status"
+                class="w-full px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600 @error('payment_status') border-red-500 @enderror"
+                required
+            >
+                <option value="">-- Pilih Status --</option>
+                <option value="belum_bayar" {{ old('payment_status') == 'belum_bayar' ? 'selected' : '' }}>Belum Bayar</option>
+                <option value="sudah_bayar" {{ old('payment_status') == 'sudah_bayar' ? 'selected' : '' }}>Sudah Bayar</option>
+            </select>
+            @error('payment_status')
+                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <!-- Tanggal Transaksi -->
+        <div>
+            <label for="transaction_date" class="block text-sm font-medium text-gray-700 mb-2">
+                Tanggal Transaksi
+            </label>
+            <input 
+                type="date" 
+                name="transaction_date" 
+                id="transaction_date"
+                value="{{ old('transaction_date', date('Y-m-d')) }}"
+                class="w-full px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600 @error('transaction_date') border-red-500 @enderror"
+                required
+            >
+            @error('transaction_date')
+                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+    </div>
+</div>
 
             <!-- Submit Button -->
             <div class="text-center">
