@@ -46,11 +46,7 @@
         <span class="material-icons-outlined">analytics</span>
         <span class="hidden opacity-0 sidebar-text transition-opacity duration-300">Report</span>
       </a>
-      <a href="/dashboard/profile"
-        class="nav-item flex items-center justify-center w-4/5 hover:bg-lime-800 px-4 py-2 text-white space-x-3 rounded-md {{ Request::is('dashboard/profile') ? 'bg-lime-800' : '' }}">
-        <span class="material-icons-outlined">people</span>
-        <span class="hidden opacity-0 sidebar-text transition-opacity duration-300">Profile</span>
-      </a>
+      
       @endif
 
       {{-- Menu USER --}}
@@ -65,12 +61,12 @@
         <span class="material-icons-outlined">credit_card</span>
         <span class="hidden opacity-0 sidebar-text transition-opacity duration-300">Payment</span>
       </a>
-      <a href="/dashboard/profile"
+      @endif
+      <a href="{{ route('profile.edit') }}"
         class="nav-item flex items-center justify-center w-4/5 hover:bg-lime-800 px-4 py-2 text-white space-x-3 rounded-md {{ Request::is('dashboard/profile') ? 'bg-lime-800' : '' }}">
         <span class="material-icons-outlined">people</span>
         <span class="hidden opacity-0 sidebar-text transition-opacity duration-300">Profile</span>
       </a>
-      @endif
     </nav>
   </div>
 

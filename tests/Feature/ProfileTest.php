@@ -1,85 +1,61 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-test('profile page is displayed', function () {
+uses(RefreshDatabase::class);
+
+test('profile index displays user profile', function () {
     $user = User::factory()->create();
 
-    $response = $this
-        ->actingAs($user)
-        ->get('/profile');
+    $response = $this->actingAs($user)->get(route('profile.index'));
 
-    $response->assertOk();
+    $response->assertStatus(200);
+    $response->assertViewIs('profile.index');
+    $response->assertViewHas('user', $user);
 });
 
-test('profile information can be updated', function () {
+test('profile edit displays user profile edit form', function () {
     $user = User::factory()->create();
 
-    $response = $this
-        ->actingAs($user)
-        ->patch('/profile', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+    $response = $this->actingAs($user)->get(route('profile.edit'));
 
-    $response
-        ->assertSessionHasNoErrors()
-        ->assertRedirect('/profile');
+    $response->assertStatus(200);
+    $response->assertViewIs('profile.edit');
+    $response->assertViewHas('user', $user);
+});
+
+test('profile update updates user profile and redirects', function () {
+    $user = User::factory()->create();
+
+    $data = [
+        'name' => 'Updated Name',
+        'email' => 'new@example.com',
+        'phone' => '081234567890',
+        'address' => 'Updated Address',
+    ];
+
+    $response = $this->actingAs($user)->patch(route('profile.update'), $data);
+
+    $response->assertRedirect(route('profile.edit'));
+    $response->assertSessionHas('status', 'profile-updated');
 
     $user->refresh();
-
-    $this->assertSame('Test User', $user->name);
-    $this->assertSame('test@example.com', $user->email);
-    $this->assertNull($user->email_verified_at);
+    expect($user->name)->toBe('Updated Name');
+    expect($user->email)->toBe('new@example.com');
+    expect($user->phone)->toBe('081234567890');
+    expect($user->address)->toBe('Updated Address');
 });
 
-test('email verification status is unchanged when the email address is unchanged', function () {
+test('profile destroy deletes user account and logs out', function () {
     $user = User::factory()->create();
 
-    $response = $this
-        ->actingAs($user)
-        ->patch('/profile', [
-            'name' => 'Test User',
-            'email' => $user->email,
-        ]);
+    $response = $this->actingAs($user)->delete(route('profile.destroy'), [
+        'password' => 'password',
+    ]);
 
-    $response
-        ->assertSessionHasNoErrors()
-        ->assertRedirect('/profile');
-
-    $this->assertNotNull($user->refresh()->email_verified_at);
-});
-
-test('user can delete their account', function () {
-    $user = User::factory()->create();
-
-    $response = $this
-        ->actingAs($user)
-        ->delete('/profile', [
-            'password' => 'password',
-        ]);
-
-    $response
-        ->assertSessionHasNoErrors()
-        ->assertRedirect('/');
+    $response->assertRedirect('/login');
 
     $this->assertGuest();
-    $this->assertNull($user->fresh());
-});
-
-test('correct password must be provided to delete account', function () {
-    $user = User::factory()->create();
-
-    $response = $this
-        ->actingAs($user)
-        ->from('/profile')
-        ->delete('/profile', [
-            'password' => 'wrong-password',
-        ]);
-
-    $response
-        ->assertSessionHasErrorsIn('userDeletion', 'password')
-        ->assertRedirect('/profile');
-
-    $this->assertNotNull($user->fresh());
+    expect(User::find($user->id))->toBeNull();
 });

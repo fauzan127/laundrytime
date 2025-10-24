@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class GoogleController extends Controller
 {
@@ -25,12 +26,12 @@ class GoogleController extends Controller
                 'email' => $googleUser->getEmail(),
             ], [
                 'name' => $googleUser->getName(),
-                'password' => bcrypt($googleUser->getId()), // password berdasarkan Google ID
+                'password' => Hash::make($googleUser->getId()), // password berdasarkan Google ID
             ]);
 
             Auth::login($user);
 
-            return redirect()->route('dashboard'); // ganti sesuai route dashboard kamu
+            return redirect()->route('dashboard');
         } catch (\Exception $e) {
             return redirect()->route('login')->with('error', 'Login Google gagal, coba lagi.');
         }
