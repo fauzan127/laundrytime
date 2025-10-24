@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use App\Models\Order;
 use Midtrans\Config;
 use Midtrans\Snap;
 
@@ -11,6 +13,7 @@ class PaymentController extends Controller
 {
     public function index()
     {
+        // Konfigurasi Midtrans
         Config::$serverKey = env('MIDTRANS_SERVER_KEY');
         Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
         Config::$isSanitized = true;
@@ -18,30 +21,24 @@ class PaymentController extends Controller
 
         $user = Auth::user();
 
-        // Dummy order list
-        $orders = collect([
-            (object)[
-                'id' => 1,
-                'order_date' => now()->subDays(3),
-                'total' => 10000,
-                'status' => 'Belum Dibayar'
-            ],
-            (object)[
-                'id' => 2,
-                'order_date' => now()->subDays(2),
-                'total' => 15000,
-                'status' => 'Sudah Dibayar'
-            ]
-        ]);
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+
+        // Ambil semua order milik user
+        $orders = Order::with('payment')->where('user_id', $user->id)->get();
 
         $snapTokens = [];
 
         foreach ($orders as $order) {
-            if ($order->status === 'Belum Dibayar') {
+            // Cek apakah belum dibayar
+            if (!$order->payment || $order->payment->payment_status === 'Belum Dibayar') {
+                $orderId = 'ORDER-' . $order->id . '-' . uniqid();
+
                 $params = [
                     'transaction_details' => [
-                        'order_id' => 'ORDER-' . $order->id . '-' . uniqid(), // ✅ Unik agar tidak error 400
-                        'gross_amount' => $order->total,
+                        'order_id' => $orderId,
+                        'gross_amount' => (int) $order->total_price,
                     ],
                     'customer_details' => [
                         'first_name' => $user->name,
@@ -50,14 +47,19 @@ class PaymentController extends Controller
                     'item_details' => [
                         [
                             'id' => 'order-' . $order->id,
-                            'price' => $order->total,
+                            'price' => (int) $order->total_price,
                             'quantity' => 1,
                             'name' => 'Pembayaran Order #' . $order->id,
                         ]
                     ],
                 ];
 
-                $snapTokens[$order->id] = Snap::getSnapToken($params);
+                try {
+                    $snapTokens[$order->id] = Snap::getSnapToken($params);
+                } catch (\Exception $e) {
+                    Log::error('Gagal membuat Snap token untuk order ' . $order->id . ': ' . $e->getMessage());
+                    $snapTokens[$order->id] = null;
+                }
             }
         }
 
