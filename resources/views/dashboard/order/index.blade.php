@@ -4,7 +4,7 @@
 <div class="bg-white p-6 rounded-lg shadow-md">
     <div class="flex justify-between items-center mb-4">
         <h1 class="text-2xl font-bold mb-4">Daftar Order</h1>
-        <a href="{{ route('order.create') }}" class="bg-green-600 text-white px-4 py-2 rounded mt-4">Tambah Order</a>
+        <a href="{{ route('orders.create') }}" class="bg-green-600 text-white px-4 py-2 rounded mt-4">Tambah Order</a>
     </div>
 
     <table class="w-full mt-4 border border-gray-200">
@@ -51,8 +51,8 @@
                     </td>
                     @if(Auth::check() && Auth::user()->role === 'admin')
                         <td class="p-2 text-center">
-                            <a href="{{ route('order.edit', $order->id) }}" class="text-yellow-600 hover:underline">Edit</a>
-                            <form action="{{ route('order.destroy', $order->id) }}" method="POST" class="inline">
+                            <a href="{{ route('orders.edit', $order->id) }}" class="text-yellow-600 hover:underline">Edit</a>
+                            <form action="{{ route('orders.destroy', $order->id) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:underline">Hapus</button>

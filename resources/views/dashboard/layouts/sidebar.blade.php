@@ -31,7 +31,7 @@
 
       {{-- Menu ADMIN --}}
       @if(Auth::user() && Auth::user()->role === 'admin')
-      <a href="{{ route('order.index') }}"
+      <a href="{{ route('orders.index') }}"
         class="nav-item flex items-center justify-center w-4/5 hover:bg-lime-800 px-4 py-2 text-white space-x-3 rounded-md {{ Request::is('order*') ? 'bg-lime-800' : '' }}">
         <span class="material-icons-outlined">content_paste</span>
         <span class="hidden opacity-0 sidebar-text transition-opacity duration-300">Order</span>
@@ -51,7 +51,7 @@
 
       {{-- Menu USER --}}
       @if(Auth::user() && Auth::user()->role === 'user')
-      <a href="{{ route('order.index') }}"
+      <a href="{{ route('orders.index') }}"
         class="nav-item flex items-center justify-center w-4/5 hover:bg-lime-800 px-4 py-2 text-white space-x-3 rounded-md {{ Request::is('order*') ? 'bg-lime-800' : '' }}">
         <span class="material-icons-outlined">content_paste</span>
         <span class="hidden opacity-0 sidebar-text transition-opacity duration-300">Order</span>
