@@ -91,73 +91,66 @@
     </div>
   </section>
 
-  <!-- Pricing Section -->
-  <section id="pricing" class="py-20 bg-gradient-to-b from-[#9EC37D] via-[#B9D993]/50 to-[#E0F4CB]">
-    <div class="max-w-6xl mx-auto px-6">
-      <h2 class="text-3xl font-bold text-center mb-12 text-green-700">Harga & Paket</h2>
+<!-- Pricing Section -->
+<section id="pricing" class="py-20 bg-gradient-to-b from-[#9EC37D] via-[#B9D993]/50 to-[#E0F4CB]">
+  <div class="max-w-6xl mx-auto px-6">
+    <h2 class="text-3xl font-bold text-center mb-12 text-green-700">Harga & Paket</h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-        <!-- Paket Reguler -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-          <div class="bg-[#5F9233] text-white font-semibold px-6 py-3 text-lg">Reguler</div>
-          <div class="p-6 space-y-3">
-            <label class="flex items-center gap-3">
-              <input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" />
-              <span>Cuci Setrika – 1 hari <strong>(Rp6.000/kg)</strong></span>
-            </label>
-            <label class="flex items-center gap-3">
-              <input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" />
-              <span>Cuci Lipat – 1 hari <strong>(Rp4.000/kg)</strong></span>
-            </label>
-            <label class="flex items-center gap-3">
-              <input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" />
-              <span>Cuci Lipat – 2 hari <strong>(Rp3.500/kg)</strong></span>
-            </label>
-            <label class="flex items-center gap-3">
-              <input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" />
-              <span>Setrika – 1 hari <strong>(Rp4.000/kg)</strong></span>
-            </label>
-            <label class="flex items-center gap-3">
-              <input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" />
-              <span>Setrika – 2 hari <strong>(Rp3.500/kg)</strong></span>
-            </label>
-          </div>
-        </div>
-
-        <!-- Paket Express -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-          <div class="bg-[#5F9233] text-white font-semibold px-6 py-3 text-lg">Express</div>
-          <div class="p-6 space-y-3">
-            <label class="flex items-center gap-3">
-              <input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" />
-              <span>Cuci Setrika – 4 jam <strong>(Rp11.000/kg)</strong></span>
-            </label>
-            <label class="flex items-center gap-3">
-              <input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" />
-              <span>Cuci Setrika – 6 jam <strong>(Rp8.000/kg)</strong></span>
-            </label>
-            <label class="flex items-center gap-3">
-              <input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" />
-              <span>Cuci Lipat – 2 jam <strong>(Rp8.000/kg)</strong></span>
-            </label>
-            <label class="flex items-center gap-3">
-              <input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" />
-              <span>Setrika – 2 jam <strong>(Rp8.000/kg)</strong></span>
-            </label>
-          </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+      <!-- Paket Reguler -->
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+        <div class="bg-[#5F9233] text-white font-semibold px-6 py-3 text-lg">Reguler</div>
+        <div class="p-6 space-y-3 text-gray-700">
+          <p>✅ Cuci Setrika – 1 hari <strong>(Rp6.000/kg)</strong></p>
+          <p>✅ Cuci Lipat – 1 hari <strong>(Rp4.000/kg)</strong></p>
+          <p>✅ Cuci Lipat – 2 hari <strong>(Rp3.500/kg)</strong></p>
+          <p>✅ Setrika – 1 hari <strong>(Rp4.000/kg)</strong></p>
+          <p>✅ Setrika – 2 hari <strong>(Rp3.500/kg)</strong></p>
         </div>
       </div>
 
-      <!-- Satuan Per Item -->
+      <!-- Paket Express -->
       <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-        <div class="bg-[#5F9233] text-white font-semibold px-6 py-3 text-lg">Satuan Per Item</div>
-        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="space-y-3"> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Bedcover 2kg+ – <strong>Rp25.000</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Bedcover 3kg+ – <strong>Rp30.000</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Sprei Set – <strong>Rp20.000</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Sprei tanpa bantal – <strong>Rp15.000</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Selimut bulu besar – <strong>Rp30.000</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Selimut bulu sedang – <strong>Rp25.000</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Boneka besar – <strong>Rp30.000</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Boneka sedang – <strong>Rp15.000</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Boneka kecil – <strong>Rp10.000</strong></span></label> </div> <div class="space-y-3"> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Seragam – <strong>Rp15.000/set</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Dress – <strong>Rp25.000</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Jas – <strong>Rp25.000</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Handuk besar – <strong>Rp10.000</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Handuk kecil – <strong>Rp5.000</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Sepatu non-putih – <strong>Rp25.000</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Sepatu putih – <strong>Rp30.000</strong></span></label> <label class="flex items-center gap-3"><input type="checkbox" class="w-5 h-5 text-green-600 rounded-full" /><span>Sepatu kulit – <strong>Rp25.000</strong></span></label> 
-        </div> 
-      </div> 
-    </div> 
-  </div> 
+        <div class="bg-[#5F9233] text-white font-semibold px-6 py-3 text-lg">Express</div>
+        <div class="p-6 space-y-3 text-gray-700">
+          <p>✅ Cuci Setrika – 4 jam <strong>(Rp11.000/kg)</strong></p>
+          <p>✅ Cuci Setrika – 6 jam <strong>(Rp8.000/kg)</strong></p>
+          <p>✅ Cuci Lipat – 2 jam <strong>(Rp8.000/kg)</strong></p>
+          <p>✅ Setrika – 2 jam <strong>(Rp8.000/kg)</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Satuan Per Item -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-[#5F9233] text-white font-semibold px-6 py-3 text-lg">Satuan Per Item</div>
+      <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+        <div class="space-y-2">
+          <p>✅ Bedcover 2kg+ – <strong>Rp25.000</strong></p>
+          <p>✅ Bedcover 3kg+ – <strong>Rp30.000</strong></p>
+          <p>✅ Sprei Set – <strong>Rp20.000</strong></p>
+          <p>✅ Sprei tanpa bantal – <strong>Rp15.000</strong></p>
+          <p>✅ Selimut bulu besar – <strong>Rp30.000</strong></p>
+          <p>✅ Selimut bulu sedang – <strong>Rp25.000</strong></p>
+          <p>✅ Boneka besar – <strong>Rp30.000</strong></p>
+          <p>✅ Boneka sedang – <strong>Rp15.000</strong></p>
+          <p>✅ Boneka kecil – <strong>Rp10.000</strong></p>
+        </div>
+        <div class="space-y-2">
+          <p>✅ Seragam – <strong>Rp15.000/set</strong></p>
+          <p>✅ Dress – <strong>Rp25.000</strong></p>
+          <p>✅ Jas – <strong>Rp25.000</strong></p>
+          <p>✅ Handuk besar – <strong>Rp10.000</strong></p>
+          <p>✅ Handuk kecil – <strong>Rp5.000</strong></p>
+          <p>✅ Sepatu non-putih – <strong>Rp25.000</strong></p>
+          <p>✅ Sepatu putih – <strong>Rp30.000</strong></p>
+          <p>✅ Sepatu kulit – <strong>Rp25.000</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
+
 
   <!-- Layanan Kami -->
   <section id="services" class="py-20 bg-gradient-to-b from-[#E0F4CB] via-[#D8F5D3] to-[#ACC1C6]">
@@ -191,29 +184,33 @@
   </section>
 
   <!-- Footer -->
-  <footer id="contact" class="bg-gradient-to-t from-[#ACC1C6] via-[#8DC78B] to-[#ACC1C6] text-white py-12">
-    <div class="container mx-auto px-6 md:px-12">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-10 text-center md:text-left">
-        <div>
-          <h3 class="font-semibold text-lg mb-2 border-b border-white/30 inline-block pb-1">Alamat</h3>
-          <p class="text-sm leading-relaxed mt-2">Jl. Melati No.10, Bandung</p>
-        </div>
-        <div>
-          <h3 class="font-semibold text-lg mb-2 border-b border-white/30 inline-block pb-1">Kontak</h3>
-          <p class="text-sm mt-2">📞 0812-3456-7890</p>
-          <p class="text-sm">✉️ timelaundry@email.com</p>
-        </div>
-        <div>
-          <h3 class="font-semibold text-lg mb-2 border-b border-white/30 inline-block pb-1">Jam Operasional</h3>
-          <p class="text-sm leading-relaxed mt-2">Setiap hari</p>
-          <p class="text-sm">08.00 - 21.00 WIB</p>
-        </div>
+<footer id="contact" class="bg-gradient-to-t from-[#ACC1C6] via-[#8DC78B] to-[#ACC1C6] text-white py-12">
+  <div class="container mx-auto px-6 md:px-12 text-center">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 justify-items-center">
+      <div>
+        <h3 class="font-semibold text-lg mb-2 border-b border-white/30 inline-block pb-1">Alamat</h3>
+        <p class="text-sm leading-relaxed mt-2 max-w-xs">
+          Jl. Taman Karya Panam, RT.06/RW.09, Tuah Karya, kec. Tuah Madani, Kota Pekanbaru, Riau 28293
+        </p>
       </div>
-      <div class="border-t border-white/20 mt-10 pt-4 text-center text-sm text-white/80">
-        © 2025 <span class="font-semibold text-white">Time Laundry</span> – Hemat waktu, hidup lebih mudah.
+      <div>
+        <h3 class="font-semibold text-lg mb-2 border-b border-white/30 inline-block pb-1">Kontak</h3>
+        <p class="text-sm mt-2">📞 0895-3868-80014</p>
+        <p class="text-sm">✉️ timelaundry@email.com</p>
+      </div>
+      <div>
+        <h3 class="font-semibold text-lg mb-2 border-b border-white/30 inline-block pb-1">Jam Operasional</h3>
+        <p class="text-sm leading-relaxed mt-2">Setiap hari</p>
+        <p class="text-sm">07.30 - 20.00 WIB</p>
       </div>
     </div>
-  </footer>
+
+    <div class="border-t border-white/20 mt-10 pt-4 text-center text-sm text-white/80">
+      © 2025 <span class="font-semibold text-white">Time Laundry</span> – Hemat waktu, hidup lebih mudah.
+    </div>
+  </div>
+</footer>
+
 
 </body>
 </html>

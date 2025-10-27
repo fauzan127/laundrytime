@@ -110,7 +110,7 @@ class OrderController extends Controller
 
             DB::commit();
 
-            return redirect()->route('order.index')
+            return redirect()->route('orders.index')
                 ->with('success', 'Pesanan berhasil dibuat! Total: Rp ' . number_format($totalPrice, 0, ',', '.'));
 
         } catch (\Exception $e) {
@@ -198,7 +198,7 @@ class OrderController extends Controller
             $order->update(['total_price' => $totalPrice]);
             DB::commit();
 
-            return redirect()->route('order.index')->with('success', 'Pesanan berhasil diperbarui!');
+            return redirect()->route('orders.index')->with('success', 'Pesanan berhasil diperbarui!');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -220,7 +220,7 @@ class OrderController extends Controller
             $order->delete();
             DB::commit();
 
-            return redirect()->route('order.index')->with('success', 'Pesanan berhasil dihapus!');
+            return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dihapus!');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());

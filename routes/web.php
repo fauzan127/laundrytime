@@ -29,7 +29,7 @@ Route::middleware('auth_or_403')->group(function () {
 // Routes utama aplikasi (butuh login)
 Route::middleware('auth_or_403')->group(function () {
     // Manajemen Order
-    Route::resource('order', OrderController::class);
+    Route::resource('orders', OrderController::class);
 });
 
 // Google OAuth

@@ -25,6 +25,7 @@ class Order extends Model
         'order_date',
         'user_id',
     ];
+    protected $guarded = [];
 
     protected $casts = [
         'total_price' => 'decimal:2',

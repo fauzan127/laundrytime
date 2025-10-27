@@ -1,4 +1,4 @@
-@extends('dashboard.layouts.main')
+route@extends('dashboard.layouts.main')
 
 @section('title', 'Form Pemesanan Time Laundry')
 
@@ -10,7 +10,7 @@
             <h1 class="text-xl font-bold">Form Pemesanan Time Laundry</h1>
         </div>
 
-        <form action="{{ route('order.store') }}" method="POST" class="p-6">
+        <form action="{{ route('orders.store') }}" method="POST" class="p-6">
             @csrf
 
             <!-- Informasi Pelanggan -->

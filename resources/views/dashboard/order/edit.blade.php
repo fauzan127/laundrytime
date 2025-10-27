@@ -10,7 +10,7 @@
             <h1 class="text-xl font-bold">Edit Order #{{ $order->order_number }}</h1>
         </div>
 
-        <form action="{{ route('order.update', $order->id) }}" method="POST" class="p-6">
+        <form action="{{ route('orders.update', $order->id) }}" method="POST" class="p-6">
             @csrf
             @method('PUT')
 
