@@ -7,8 +7,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentCallbackController;
+use App\Http\Controllers\AdminTransactionController;
 use App\Http\Controllers\TrackingController;
-
 
 Route::get('/', function () {
     return view('welcome');
@@ -53,39 +53,24 @@ Route::post('/test-callback', function () {
 Route::middleware('auth_or_403')->group(function () {
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
     Route::get('/payment/{id}', [PaymentController::class, 'pay'])->name('payment.pay');
-    Route::get('/payment/unfinish', function () {
-        return view('payment.unfinish');
-    });
-    Route::get('/payment/error', function () {
-        return view('payment.error');
-    });
+    
 });
 
-Route::get('/dashboard/tracking', [TrackingController::class, 'index'])
-    ->middleware(['auth'])
-    ->name('dashboard.tracking');
+// Admin Payment Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/payment', [AdminTransactionController::class, 'index'])->name('admin.payment');
+    Route::post('/admin/payment/{id}/mark-paid', [AdminTransactionController::class, 'markPaid'])->name('admin.payment.mark-paid');
+    Route::post('/admin/payment/{id}/mark-unpaid', [AdminTransactionController::class, 'markUnpaid'])->name('admin.payment.mark-unpaid');
+});
 
-Route::put('/dashboard/tracking/{id}/update-status', [TrackingController::class, 'updateStatus'])
-    ->name('tracking.updateStatus');
-
-Route::get('/dashboard/tracking', [TrackingController::class, 'index'])->name('tracking.index');
-Route::get('/dashboard/tracking/{id}', [TrackingController::class, 'show'])->name('tracking.show');
-Route::post('/dashboard/tracking', [TrackingController::class, 'store'])->name('tracking.store');
-Route::put('/dashboard/tracking/{id}', [TrackingController::class, 'update'])->name('tracking.update');
-Route::put('/dashboard/tracking/{id}/status', [TrackingController::class, 'updateStatus'])->name('tracking.updateStatus');
-
-Route::get('/dashboard/detailtracking/{customerName}', [TrackingController::class, 'show'])->name('tracking.show');
-
-Route::get('/dashboard/tracking', [TrackingController::class, 'index'])
-    ->name('tracking.index');
-
-Route::get('/dashboard/tracking', [TrackingController::class, 'index'])->name('tracking.index');
-
-
-Route::get('/dashboard/tracking', [TrackingController::class, 'index'])->name('tracking.index');
-
-Route::put('/dashboard/tracking/{id}/status', [App\Http\Controllers\TrackingController::class, 'updateStatus'])
-    ->name('tracking.updateStatus');
-
+// Tracking Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard/tracking', [TrackingController::class, 'index'])->name('tracking.index');
+    Route::get('/dashboard/tracking/{id}', [TrackingController::class, 'show'])->name('tracking.show');
+    Route::post('/dashboard/tracking', [TrackingController::class, 'store'])->name('tracking.store');
+    Route::put('/dashboard/tracking/{id}', [TrackingController::class, 'update'])->name('tracking.update');
+    Route::put('/dashboard/tracking/{id}/status', [TrackingController::class, 'updateStatus'])->name('tracking.updateStatus');
+    Route::get('/dashboard/detailtracking/{customerName}', [TrackingController::class, 'show'])->name('tracking.detail');
+});
 
 require __DIR__.'/auth.php';

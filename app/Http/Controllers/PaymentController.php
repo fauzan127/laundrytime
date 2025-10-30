@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Models\Order;
+use App\Models\Payment;
 use Midtrans\Config;
 use Midtrans\Snap;
 
@@ -25,14 +26,23 @@ class PaymentController extends Controller
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        // Ambil semua order milik user
-        $orders = Order::with('payment')->where('user_id', $user->id)->get();
+        // Ambil order milik user dengan pagination
+        $orders = Order::with('payment')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->paginate(10);
 
         $snapTokens = [];
 
         foreach ($orders as $order) {
-            // Cek apakah belum dibayar
-            if (!$order->payment || $order->payment->payment_status === 'Belum Dibayar') {
+            $payment = $order->payment;
+
+            if (!$payment || in_array($payment->payment_status, ['Belum Dibayar', 'Menunggu Pembayaran'])) {
+                if ($payment && $payment->token) {
+                    $snapTokens[$order->id] = $payment->token;
+                    continue;
+                }
+
                 $orderId = 'ORDER-' . $order->id . '-' . uniqid();
 
                 $params = [
@@ -52,10 +62,31 @@ class PaymentController extends Controller
                             'name' => 'Pembayaran Order #' . $order->id,
                         ]
                     ],
+                    'enabled_payments' => [
+                        'credit_card',
+                        'gopay',
+                        'qris',
+                        'bank_transfer',
+                        'shopeepay',
+                        'permata_va',
+                        'bca_va',
+                        'bni_va',
+                        'other_va',
+                    ],
                 ];
 
                 try {
-                    $snapTokens[$order->id] = Snap::getSnapToken($params);
+                    $snapToken = Snap::getSnapToken($params);
+                    $snapTokens[$order->id] = $snapToken;
+
+                    if (!$payment) {
+                        $payment = new Payment();
+                        $payment->order_id = $order->id;
+                        $payment->payment_status = 'Belum Dibayar';
+                    }
+
+                    $payment->token = $snapToken;
+                    $payment->save();
                 } catch (\Exception $e) {
                     Log::error('Gagal membuat Snap token untuk order ' . $order->id . ': ' . $e->getMessage());
                     $snapTokens[$order->id] = null;
