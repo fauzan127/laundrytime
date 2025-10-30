@@ -24,6 +24,8 @@ class Order extends Model
         'notes',
         'order_date',
         'user_id',
+        'payment_status',
+        'transaction_date',
     ];
 
     protected $casts = [

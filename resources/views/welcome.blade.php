@@ -21,8 +21,8 @@
         <li><a href="#services" class="hover:text-green-200 transition">Services</a></li>
       </ul>
       <div class="hidden md:flex gap-4">
-        <a href="#pesanansaya" class="bg-white text-green-700 px-4 py-2 rounded-lg font-semibold hover:bg-green-100 transition">Pesanan Saya</a>
-        <a href="#register" class="bg-white text-green-700 px-4 py-2 rounded-lg font-semibold hover:bg-green-100 transition">Register</a>
+        <a href="{{ route('login') }}" class="bg-white text-green-700 px-4 py-2 rounded-lg font-semibold hover:bg-green-100 transition">Login</a>
+        <a href="{{ route('register') }}" class="bg-white text-green-700 px-4 py-2 rounded-lg font-semibold hover:bg-green-100 transition">Register</a>
       </div>
       <button id="menu-btn" class="md:hidden flex flex-col gap-1 focus:outline-none">
         <span class="w-6 h-0.5 bg-white"></span>
@@ -62,7 +62,7 @@
       <p class="mt-6 text-gray-700 text-lg">
         <b>Time Laundry</b> siap membuat pakaianmu bersih, rapi, dan wangi tanpa bikin kamu kehilangan waktu berharga.
       </p>
-      <a href="#services"
+      <a href="{{ route('login') }}"
         class="mt-8 inline-block bg-[#CCE1B8] hover:bg-green-700 text-white px-8 py-4 rounded-lg shadow-lg transition">
         Pesan Sekarang
       </a>

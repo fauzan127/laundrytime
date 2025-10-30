@@ -10,7 +10,7 @@
 
     <!-- Gambar ilustrasi -->
     <div class="text-center px-6">
-        <img src="{{ asset('image/403.png') }}" alt="403 Forbidden" class="w-3/4 mx-auto mb-6">
+        <img src="{{ asset('image/403.webp') }}" alt="403 Forbidden" class="w-3/4 mx-auto mb-6">
 
         <!-- Pesan -->
         {{-- <h1 class="text-3xl font-bold text-green-700 mb-2">403 ERROR FORBIDDEN</h1>
@@ -21,7 +21,7 @@
 
         <!-- Tombol kembali -->
         <a href="{{ url('/') }}"
-           class="bg-gray-200 hover:bg-green-500 hover:text-white font-semibold py-2 px-6 rounded-lg transition">
+           class="bg-green-200 hover:bg-green-500 hover:text-white font-semibold py-4 px-8 rounded-lg transition">
            Beranda
         </a>
     </div>

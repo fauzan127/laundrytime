@@ -40,7 +40,7 @@ Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallba
 
 // Auth routes bawaan Laravel Breeze/Fortify
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth_or_403'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/report', [DashboardController::class, 'report'])->name('dashboard.report');
 });

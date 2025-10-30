@@ -38,6 +38,13 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+        \Log::info('Order store called', [
+            'user_id' => Auth::id(),
+            'request_all' => $request->all(),
+            'has_items' => $request->has('items'),
+            'items_count' => $request->has('items') ? count($request->input('items')) : 0
+        ]);
+
         // Validasi input
         $validated = $request->validate([
             'customer_name' => 'required|string|max:255',
@@ -65,9 +72,6 @@ class OrderController extends Controller
             }
         }
 
-        // Set tipe order: default "pemesanan" (bisa "kain_masuk" kalau dari form lain)
-        $orderType = $request->input('order_type', 'pemesanan');
-
         DB::beginTransaction();
         try {
             // Simpan order
@@ -79,8 +83,7 @@ class OrderController extends Controller
                 'pickup_date' => $validated['pickup_date'] ?? null,
                 'pickup_time' => $validated['pickup_time'] ?? null,
                 'notes' => $validated['notes'] ?? null,
-                'status' => 'Pending',
-                'order_type' => $orderType,
+                'status' => 'diproses',
                 'user_id' => Auth::id(),
                 'order_date' => now(),
             ]);
@@ -110,11 +113,22 @@ class OrderController extends Controller
 
             DB::commit();
 
+            \Log::info('Order created successfully', [
+                'order_id' => $order->id,
+                'total_price' => $totalPrice,
+                'user_id' => Auth::id()
+            ]);
+
             return redirect()->route('order.index')
                 ->with('success', 'Pesanan berhasil dibuat! Total: Rp ' . number_format($totalPrice, 0, ',', '.'));
 
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Order creation failed', [
+                'error' => $e->getMessage(),
+                'user_id' => Auth::id(),
+                'request_data' => $request->all()
+            ]);
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
@@ -158,7 +172,7 @@ class OrderController extends Controller
             'customer_phone' => 'required|string|max:20',
             'delivery_type' => 'required|in:antar_jemput,pengantaran_pribadi',
             'address' => 'nullable|string|max:500',
-            'status' => 'required|in:Pending,Proses,Selesai',
+            'status' => 'required|in:diproses,siap_antar,antar,sampai_tujuan,cancelled',
             'items' => 'required|array|min:1',
             'items.*.service_type_id' => 'required|exists:service_types,id',
             'items.*.clothing_type_id' => 'required|exists:clothing_types,id',
