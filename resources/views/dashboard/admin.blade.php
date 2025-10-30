@@ -159,8 +159,8 @@
                         @endswitch
                     </td>
                     <td class="px-4 py-2 text-right">Rp{{ number_format($order->total_price, 0, ',', '.') }}</td>
-                    <td class="px-4 py-2 text-center">{{ $order->order_date->format('d M Y') }}</td>
-                    <td class="px-4 py-2 text-center">{{ $order->pickup_date->format('d M Y') }}</td>
+                    <td class="px-4 py-2 text-center">{{ $order->order_date ? $order->order_date->format('d M Y') : '-' }}</td>
+                    <td class="px-4 py-2 text-center">{{ $order->pickup_date ? $order->pickup_date->format('d M Y') : '-' }}</td>
                 </tr>
                 @empty
                 <tr>

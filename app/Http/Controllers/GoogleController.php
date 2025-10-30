@@ -13,7 +13,7 @@ class GoogleController extends Controller
     // Redirect ke Google
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')->with(['prompt' => 'select_account'])->redirect();
     }
 
     // Callback dari Google
@@ -22,18 +22,31 @@ class GoogleController extends Controller
         try {
             $googleUser = Socialite::driver('google')->user();
 
-            $user = User::updateOrCreate([
-                'email' => $googleUser->getEmail(),
-            ], [
-                'name' => $googleUser->getName(),
-                'password' => Hash::make($googleUser->getId()), // password berdasarkan Google ID
-            ]);
+            $user = User::where('google_id', $googleUser->getId())->orWhere('email', $googleUser->getEmail())->first();
 
-            Auth::login($user);
-
+            if ($user) {
+                // User exists, update google_id if not set
+                if (!$user->google_id) {
+                    $user->google_id = $googleUser->getId();
+                    $user->save();
+                }
+                Auth::login($user);
+            } else {
+                // Create new user
+                $user = User::create([
+                    'name' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'google_id' => $googleUser->getId(),
+                    'password' => Hash::make(uniqid()), // supaya tidak null
+                ]);
+                Auth::login($user);
+            }
+            logger('User logged in:', ['id' => $user->id]);
             return redirect()->route('dashboard');
         } catch (\Exception $e) {
             return redirect()->route('login')->with('error', 'Login Google gagal, coba lagi.');
         }
     }
+
+
 }
