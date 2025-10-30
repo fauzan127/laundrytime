@@ -10,14 +10,14 @@ class PaymentCallbackController extends Controller
 {
     public function handle(Request $request)
     {
-    
-        $serverKey     = env('MIDTRANS_SERVER_KEY');
-        $signatureKey  = $request->signature_key;
-        $orderId       = $request->order_id;
-        $statusCode    = $request->status_code;
-        $grossAmount   = $request->gross_amount;
-        $transactionStatus = $request->transaction_status;
-        
+        $serverKey          = env('MIDTRANS_SERVER_KEY');
+        $signatureKey       = $request->input('signature_key');
+        $orderId            = $request->input('order_id');
+        $statusCode         = $request->input('status_code');
+        $grossAmount        = $request->input('gross_amount');
+        $transactionStatus  = $request->input('transaction_status');
+        $paymentType        = $request->input('payment_type');
+
         Log::info('📥 Callback masuk:', $request->all());
 
         // Validasi Signature
@@ -45,9 +45,10 @@ class PaymentCallbackController extends Controller
             if ($order->payment) {
                 $order->payment->update([
                     'payment_status' => 'Sudah Dibayar',
+                    'payment_method' => $paymentType,
                     'paid_at' => now(),
                 ]);
-                Log::info("✅ Pembayaran berhasil untuk order #{$order->id}");
+                Log::info("✅ Pembayaran berhasil untuk order #{$order->id} dengan metode {$paymentType}");
             } else {
                 Log::warning("⚠️ Order #{$order->id} tidak memiliki relasi payment");
             }
@@ -56,7 +57,5 @@ class PaymentCallbackController extends Controller
         }
 
         return response()->json(['message' => 'Callback diproses'], 200);
-
     }
-
 }

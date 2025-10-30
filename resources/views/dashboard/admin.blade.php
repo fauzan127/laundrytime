@@ -121,8 +121,8 @@
                     <td class="px-4 py-2 text-center">
                         {{ ($orders->currentPage() - 1) * $orders->perPage() + $loop->iteration }}
                     </td>
-                    <td class="px-4 py-2">{{ $order->customer_name }}</td>
-                    <td class="px-4 py-2">{{ $order->customer_phone }}</td>
+                    <td class="px-4 py-2 text-center">{{ $order->customer_name }}</td>
+                    <td class="px-4 py-2 text-center">{{ $order->customer_phone }}</td>
                     <td class="px-4 py-2 text-center">
                         @switch($order->status)
                             @case('diproses')
@@ -158,7 +158,7 @@
                                 </span>
                         @endswitch
                     </td>
-                    <td class="px-4 py-2 text-right">Rp{{ number_format($order->total_price, 0, ',', '.') }}</td>
+                    <td class="px-4 py-2 text-center">Rp{{ number_format($order->total_price, 0, ',', '.') }}</td>
                     <td class="px-4 py-2 text-center">{{ $order->order_date->format('d M Y') }}</td>
                     <td class="px-4 py-2 text-center">{{ $order->pickup_date->format('d M Y') }}</td>
                 </tr>

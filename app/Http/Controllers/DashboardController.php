@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    /**
+     * Show dashboard based on user role
+     */
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -31,7 +35,7 @@ class DashboardController extends Controller
         // Final query with ordering and pagination
         $orders = $query->orderBy('created_at', 'desc')->paginate(10);
 
-        // FIX: Count orders per status yang sesuai dengan view
+        // Count orders per status
         $statusCounts = $this->getStatusCounts($user);
 
         // Return view based on role
@@ -55,8 +59,10 @@ class DashboardController extends Controller
         return [
             'diproses' => (clone $baseQuery)->where('status', 'diproses')->count(),
             'siap_antar' => (clone $baseQuery)->where('status', 'siap_antar')->count(),
+            'antar' => (clone $baseQuery)->where('status', 'antar')->count(),
             'sampai_tujuan' => (clone $baseQuery)->where('status', 'sampai_tujuan')->count(),
-            'total' => $baseQuery->count(), // total semua pesanan
+            'cancelled' => (clone $baseQuery)->where('status', 'cancelled')->count(),
+            'total' => $baseQuery->count(),
         ];
     }
 
@@ -84,7 +90,7 @@ class DashboardController extends Controller
         switch ($period) {
             case 'daily':
                 $salesData = $baseQuery
-                    ->selectRaw('DATE(order_date) as period, COUNT(*) as transactions, SUM(total_price) as revenue')
+                    ->selectRaw('DATE(created_at) as period, COUNT(*) as transactions, SUM(total_price) as revenue')
                     ->groupBy('period')
                     ->orderBy('period', 'desc')
                     ->get()
@@ -92,7 +98,7 @@ class DashboardController extends Controller
                         $totalRevenue += $item->revenue;
                         $totalTransactions += $item->transactions;
                         return [
-                            'period' => \Carbon\Carbon::parse($item->period)->format('d M Y'),
+                            'period' => Carbon::parse($item->period)->format('d M Y'),
                             'transactions' => $item->transactions,
                             'revenue' => $item->revenue
                         ];
@@ -101,7 +107,7 @@ class DashboardController extends Controller
 
             case 'weekly':
                 $salesData = $baseQuery
-                    ->selectRaw('YEAR(order_date) as year, WEEK(order_date) as week, COUNT(*) as transactions, SUM(total_price) as revenue')
+                    ->selectRaw('YEAR(created_at) as year, WEEK(created_at) as week, COUNT(*) as transactions, SUM(total_price) as revenue')
                     ->groupBy('year', 'week')
                     ->orderBy('year', 'desc')
                     ->orderBy('week', 'desc')
@@ -120,7 +126,7 @@ class DashboardController extends Controller
             case 'monthly':
             default:
                 $salesData = $baseQuery
-                    ->selectRaw('YEAR(order_date) as year, MONTH(order_date) as month, COUNT(*) as transactions, SUM(total_price) as revenue')
+                    ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as transactions, SUM(total_price) as revenue')
                     ->groupBy('year', 'month')
                     ->orderBy('year', 'desc')
                     ->orderBy('month', 'desc')
@@ -128,7 +134,7 @@ class DashboardController extends Controller
                     ->map(function ($item) use (&$totalRevenue, &$totalTransactions) {
                         $totalRevenue += $item->revenue;
                         $totalTransactions += $item->transactions;
-                        $monthName = \Carbon\Carbon::create()->month($item->month)->format('M');
+                        $monthName = Carbon::create()->month($item->month)->format('M');
                         return [
                             'period' => $monthName . ' ' . $item->year,
                             'transactions' => $item->transactions,

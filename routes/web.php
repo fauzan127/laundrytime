@@ -7,7 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentCallbackController;
-
+use App\Http\Controllers\AdminTransactionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -20,7 +20,8 @@ Route::get('/dashboard', function () {
 
 // Routes untuk Profile
 Route::middleware('auth_or_403')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
@@ -51,13 +52,17 @@ Route::post('/test-callback', function () {
 Route::middleware('auth_or_403')->group(function () {
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
     Route::get('/payment/{id}', [PaymentController::class, 'pay'])->name('payment.pay');
-    Route::get('/payment/unfinish', function () {
-        return view('payment.unfinish');
-    });
-    Route::get('/payment/error', function () {
-        return view('payment.error');
-    });
+    
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/payment', [AdminTransactionController::class, 'index'])->name('admin.payment');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/payment', [AdminTransactionController::class, 'index'])->name('admin.payment');
+    Route::post('/admin/payment/{id}/mark-paid', [AdminTransactionController::class, 'markPaid'])->name('admin.payment.mark-paid');
+    Route::post('/admin/payment/{id}/mark-unpaid', [AdminTransactionController::class, 'markUnpaid'])->name('admin.payment.mark-unpaid');
+});
 
 require __DIR__.'/auth.php';

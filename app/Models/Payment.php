@@ -11,19 +11,27 @@ class Payment extends Model
 
     protected $fillable = [
         'order_id',
+        'order_number',      // snapshot dari orders
+        'total_price',       // snapshot dari orders
+        'customer_name',     // snapshot dari orders
         'payment_method',
         'payment_status',
         'amount',
         'paid_at',
+        'token',             // opsional: token dari Midtrans
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
+        'total_price' => 'decimal:2',
         'paid_at' => 'datetime',
     ];
 
-    public function order()
+    /**
+     * Relasi ke model Order
+     */
+    public function payment()
     {
-        return $this->belongsTo(Order::class);
+        return $this->hasOne(Payment::class, 'order_id', 'id');
     }
 }

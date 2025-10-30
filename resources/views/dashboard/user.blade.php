@@ -62,25 +62,25 @@
             <table class="min-w-full">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Berat</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Biaya</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pengantaran</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Berat</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Biaya</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pengantaran</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @forelse($orders as $order)
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td class="px-6 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900">
                             {{ ($orders->currentPage() - 1) * $orders->perPage() + $loop->iteration }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        <td class="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-600">
                             <div>{{ $order->order_date->format('d M Y') }}</div>
                             <div class="text-xs text-gray-400">Ambil: {{ $order->pickup_date->format('d M') }}</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4 text-center whitespace-nowrap">
                             @switch($order->status)
                                 @case('diproses')
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Diproses</span>
@@ -99,9 +99,9 @@
                                     @break
                             @endswitch
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $order->weight }} kg</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Rp{{ number_format($order->total_price, 0, ',', '.') }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        <td class="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-600">{{ $order->weight }} kg</td>
+                        <td class="px-6 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900">Rp{{ number_format($order->total_price, 0, ',', '.') }}</td>
+                        <td class="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-600">
                             @if($order->delivery_type == 'antar_jemput')
                                 <span class="text-blue-600">Antar Jemput</span>
                             @else
