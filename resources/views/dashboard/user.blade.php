@@ -78,7 +78,7 @@
                         </td>
                         <td class="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-600">
                             <div>{{ $order->order_date->format('d M Y') }}</div>
-                            <div class="text-xs text-gray-400">Ambil: {{ $order->pickup_date->format('d M') }}</div>
+                            <div class="text-xs text-gray-400">Ambil: {{ $order->pickup_date ? $order->pickup_date->format('d M Y') : '-' }}</div>
                         </td>
                         <td class="px-6 py-4 text-center whitespace-nowrap">
                             @switch($order->status)

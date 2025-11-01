@@ -38,12 +38,7 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        \Log::info('Order store called', [
-            'user_id' => Auth::id(),
-            'request_all' => $request->all(),
-            'has_items' => $request->has('items'),
-            'items_count' => $request->has('items') ? count($request->input('items')) : 0
-        ]);
+
 
         // Validasi input
         $validated = $request->validate([
@@ -113,22 +108,12 @@ class OrderController extends Controller
 
             DB::commit();
 
-            \Log::info('Order created successfully', [
-                'order_id' => $order->id,
-                'total_price' => $totalPrice,
-                'user_id' => Auth::id()
-            ]);
-
             return redirect()->route('order.index')
                 ->with('success', 'Pesanan berhasil dibuat! Total: Rp ' . number_format($totalPrice, 0, ',', '.'));
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Order creation failed', [
-                'error' => $e->getMessage(),
-                'user_id' => Auth::id(),
-                'request_data' => $request->all()
-            ]);
+
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }

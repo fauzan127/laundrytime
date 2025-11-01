@@ -23,11 +23,11 @@
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
-
+        <!-- Remember Me -->
         <div class="flex items-center justify-between">
-            <label for="remember_me" class="inline-flex justify-start">
+            <label for="remember_me" class="inline-flex justify-start mt-1">
                 <input id="remember_me" type="checkbox" class="rounded bg-white border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+                <span class="ms-1 text-sm text-gray-600">{{ __('Remember me') }}</span>
             </label>
             @if (Route::has('password.request'))
                 <a class="underline items-end justify-end text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
@@ -36,10 +36,7 @@
             @endif
             
         </div>
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            
-        </div>
+        
         <div class="flex items-end justify-end mt-4">
             <x-primary-button class="ms-3">
                 {{ __('Log in') }}
