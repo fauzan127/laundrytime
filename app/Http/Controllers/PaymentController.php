@@ -26,9 +26,15 @@ class PaymentController extends Controller
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
+        header("Cache-Control: no-cache, no-store, must-revalidate");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+
         // Ambil order milik user dengan pagination
+        // TAMBAH FILTER: hanya order dengan weight > 0 yang bisa bayar
         $orders = Order::with('payment')
             ->where('user_id', $user->id)
+            ->where('weight', '>', 0) // ← FILTER BARU INI
             ->latest()
             ->paginate(10);
 
@@ -36,6 +42,12 @@ class PaymentController extends Controller
 
         foreach ($orders as $order) {
             $payment = $order->payment;
+
+            // TAMBAH VALIDASI: pastikan weight > 0 sebelum buat token
+            if ($order->weight <= 0) {
+                Log::info('Order ' . $order->id . ' skipped: weight is 0 or null');
+                continue; // Skip order yang weight-nya 0
+            }
 
             if (!$payment || in_array($payment->payment_status, ['Belum Dibayar', 'Menunggu Pembayaran'])) {
                 if ($payment && $payment->token) {
@@ -95,5 +107,27 @@ class PaymentController extends Controller
         }
 
         return view('payment.payment', compact('orders', 'snapTokens'));
+    }
+
+    /**
+     * Method tambahan untuk handle case jika ada direct access
+     */
+    public function create($orderId)
+    {
+        $order = Order::findOrFail($orderId);
+        
+        // Validasi weight
+        if ($order->weight <= 0) {
+            return redirect()->route('orders.show', $orderId)
+                ->with('error', 'Belum dapat melakukan pembayaran. Tunggu hingga weight diisi oleh admin.');
+        }
+        
+        // Jika sudah ada payment, redirect ke index
+        if ($order->payment) {
+            return redirect()->route('payment.index');
+        }
+        
+        // Jika belum ada payment, redirect ke index juga (akan otomatis generate token)
+        return redirect()->route('payment.index');
     }
 }

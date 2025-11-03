@@ -32,6 +32,11 @@ class DashboardController extends Controller
             $query->where('status', $request->status);
         }
 
+        // Filter pengantaran - INI YANG HARUS DIPERBAIKI
+        if ($request->has('delivery_type') && $request->delivery_type != '') {
+            $query->where('delivery_type', $request->delivery_type);
+        }
+
         // Final query with ordering and pagination
         $orders = $query->orderBy('created_at', 'desc')->paginate(10);
 
