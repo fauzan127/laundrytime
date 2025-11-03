@@ -43,13 +43,6 @@ class OrderSeeder extends Seeder
 
         // Clothing Types
         ClothingType::create([
-            'name' => 'Pakaian Reguler',
-            'description' => 'Pakaian sehari-hari (baju, celana, dll)',
-            'additional_price' => 0,
-            'is_active' => true
-        ]);
-
-        ClothingType::create([
             'name' => 'Bedcover/Sprei',
             'description' => 'Bedcover dan sprei',
             'additional_price' => 3000,

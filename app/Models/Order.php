@@ -32,7 +32,7 @@ class Order extends Model
         'total_price' => 'decimal:2',
         'order_date' => 'datetime',
         'pickup_date' => 'date',
-        'pickup_time' => 'datetime',
+        'transaction_date' => 'datetime',
     ];
 
     public function items()

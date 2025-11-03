@@ -37,16 +37,18 @@ return new class extends Migration
             $table->string('order_number')->unique();
             $table->string('customer_name');
             $table->string('customer_phone');
-            $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
+            $table->enum('status', ['diproses', 'siap_antar', 'antar', 'sampai_tujuan', 'cancelled'])->default('diproses');
             $table->enum('delivery_type', ['antar_jemput', 'pengantaran_pribadi'])->default('pengantaran_pribadi');
             $table->text('address')->nullable();
             $table->date('pickup_date')->nullable();
             $table->time('pickup_time')->nullable();
-            $table->decimal('weight', 8, 2);
+            $table->decimal('weight', 8, 2)->nullable();
             $table->decimal('total_price', 10, 2)->default(0);
             $table->text('notes')->nullable();
             $table->timestamp('order_date');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->enum('payment_status', ['belum_bayar', 'sudah_bayar'])->default('belum_bayar');
+            $table->timestamp('transaction_date')->nullable();
             $table->timestamps();
         });
 
@@ -54,8 +56,8 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
-            $table->foreignId('service_type_id')->constrained()->onDelete('cascade');
-            $table->foreignId('clothing_type_id')->constrained()->onDelete('cascade');
+            $table->foreignId('service_type_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('clothing_type_id')->nullable()->constrained()->onDelete('cascade');
             $table->decimal('weight', 8, 2);
             $table->decimal('price', 10, 2);
             $table->timestamps();

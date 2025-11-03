@@ -16,7 +16,9 @@ class OrderItem extends Model
 
     protected $casts = [
         'weight' => 'decimal:2',
-        'price' => 'decimal:2'
+        'price' => 'decimal:2',
+        'service_type_id' => 'integer',
+        'clothing_type_id' => 'integer'
     ];
 
     public function order()

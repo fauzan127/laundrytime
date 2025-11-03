@@ -49,11 +49,20 @@ class OrderController extends Controller
             'pickup_date' => 'nullable|date',
             'pickup_time' => 'nullable',
             'notes' => 'nullable|string|max:500',
+            'payment_status' => 'nullable|in:belum_bayar,sudah_bayar',
+            'transaction_date' => 'nullable|date',
             'items' => 'required|array|min:1',
-            'items.*.service_type_id' => 'required|exists:service_types,id',
-            'items.*.clothing_type_id' => 'required|exists:clothing_types,id',
+            'items.*.service_type_id' => 'nullable|exists:service_types,id',
+            'items.*.clothing_type_id' => 'nullable|exists:clothing_types,id',
             'items.*.weight' => 'required|numeric|min:0.1|max:1000',
         ]);
+
+        // Pastikan setidaknya salah satu dari service_type_id atau clothing_type_id ada
+        foreach ($validated['items'] as $index => $item) {
+            if (empty($item['service_type_id']) && empty($item['clothing_type_id'])) {
+                return back()->withInput()->with('error', "Item " . ($index + 1) . ": Harus memilih setidaknya satu jenis layanan atau jenis pakaian.");
+            }
+        }
 
         // Jika antar jemput, wajib isi alamat & cek area
         if ($validated['delivery_type'] === 'antar_jemput') {
@@ -65,6 +74,11 @@ class OrderController extends Controller
             if (!str_contains($address, 'tuah karya') && !str_contains($address, 'tuahkarya')) {
                 return back()->withInput()->with('error', 'Alamat harus berada di area Tuah Karya untuk layanan Antar Jemput.');
             }
+        }
+
+        // Jika admin, validasi payment_status
+        if (Auth::user()->role === 'admin' && isset($validated['payment_status'])) {
+            // Payment status validation
         }
 
         DB::beginTransaction();
@@ -79,6 +93,8 @@ class OrderController extends Controller
                 'pickup_time' => $validated['pickup_time'] ?? null,
                 'notes' => $validated['notes'] ?? null,
                 'status' => 'diproses',
+                'payment_status' => $validated['payment_status'] ?? 'belum_bayar',
+                'transaction_date' => $validated['transaction_date'] ?? now(),
                 'user_id' => Auth::id(),
                 'order_date' => now(),
             ]);
@@ -87,15 +103,25 @@ class OrderController extends Controller
 
             // Simpan item pesanan
             foreach ($validated['items'] as $item) {
-                $serviceType = ServiceType::findOrFail($item['service_type_id']);
-                $clothingType = ClothingType::findOrFail($item['clothing_type_id']);
+                $servicePrice = 0;
+                $clothingPrice = 0;
 
-                $itemPrice = ($serviceType->price_per_kg + $clothingType->additional_price) * $item['weight'];
+                if (!empty($item['service_type_id'])) {
+                    $serviceType = ServiceType::findOrFail($item['service_type_id']);
+                    $servicePrice = $serviceType->price_per_kg;
+                }
+
+                if (!empty($item['clothing_type_id'])) {
+                    $clothingType = ClothingType::findOrFail($item['clothing_type_id']);
+                    $clothingPrice = $clothingType->additional_price;
+                }
+
+                $itemPrice = ($servicePrice + $clothingPrice) * $item['weight'];
 
                 OrderItem::create([
                     'order_id' => $order->id,
-                    'service_type_id' => $item['service_type_id'],
-                    'clothing_type_id' => $item['clothing_type_id'],
+                    'service_type_id' => $item['service_type_id'] ?? null,
+                    'clothing_type_id' => $item['clothing_type_id'] ?? null,
                     'weight' => $item['weight'],
                     'price' => $itemPrice,
                 ]);
@@ -157,12 +183,23 @@ class OrderController extends Controller
             'customer_phone' => 'required|string|max:20',
             'delivery_type' => 'required|in:antar_jemput,pengantaran_pribadi',
             'address' => 'nullable|string|max:500',
-            'status' => 'required|in:diproses,siap_antar,antar,sampai_tujuan,cancelled',
+            'pickup_date' => 'nullable|date',
+            'pickup_time' => 'nullable',
+            'notes' => 'nullable|string|max:500',
+            'payment_status' => 'nullable|in:belum_bayar,sudah_bayar',
+            'transaction_date' => 'nullable|date',
             'items' => 'required|array|min:1',
-            'items.*.service_type_id' => 'required|exists:service_types,id',
-            'items.*.clothing_type_id' => 'required|exists:clothing_types,id',
+            'items.*.service_type_id' => 'nullable|exists:service_types,id',
+            'items.*.clothing_type_id' => 'nullable|exists:clothing_types,id',
             'items.*.weight' => 'required|numeric|min:0.1|max:1000',
         ]);
+
+        // Pastikan setidaknya salah satu dari service_type_id atau clothing_type_id ada
+        foreach ($validated['items'] as $index => $item) {
+            if (empty($item['service_type_id']) && empty($item['clothing_type_id'])) {
+                return back()->with('error', "Item " . ($index + 1) . ": Harus memilih setidaknya satu jenis layanan atau jenis pakaian.");
+            }
+        }
 
         DB::beginTransaction();
         try {
@@ -171,7 +208,11 @@ class OrderController extends Controller
                 'customer_phone' => $validated['customer_phone'],
                 'delivery_type' => $validated['delivery_type'],
                 'address' => $validated['address'] ?? null,
-                'status' => $validated['status'],
+                'pickup_date' => $validated['pickup_date'] ?? null,
+                'pickup_time' => $validated['pickup_time'] ?? null,
+                'notes' => $validated['notes'] ?? null,
+                'payment_status' => $validated['payment_status'] ?? $order->payment_status,
+                'transaction_date' => $validated['transaction_date'] ?? $order->transaction_date,
             ]);
 
             // Hapus item lama
@@ -179,14 +220,25 @@ class OrderController extends Controller
 
             $totalPrice = 0;
             foreach ($validated['items'] as $item) {
-                $serviceType = ServiceType::findOrFail($item['service_type_id']);
-                $clothingType = ClothingType::findOrFail($item['clothing_type_id']);
-                $itemPrice = ($serviceType->price_per_kg + $clothingType->additional_price) * $item['weight'];
+                $servicePrice = 0;
+                $clothingPrice = 0;
+
+                if (!empty($item['service_type_id'])) {
+                    $serviceType = ServiceType::findOrFail($item['service_type_id']);
+                    $servicePrice = $serviceType->price_per_kg;
+                }
+
+                if (!empty($item['clothing_type_id'])) {
+                    $clothingType = ClothingType::findOrFail($item['clothing_type_id']);
+                    $clothingPrice = $clothingType->additional_price;
+                }
+
+                $itemPrice = ($servicePrice + $clothingPrice) * $item['weight'];
 
                 OrderItem::create([
                     'order_id' => $order->id,
-                    'service_type_id' => $item['service_type_id'],
-                    'clothing_type_id' => $item['clothing_type_id'],
+                    'service_type_id' => $item['service_type_id'] ?? null,
+                    'clothing_type_id' => $item['clothing_type_id'] ?? null,
                     'weight' => $item['weight'],
                     'price' => $itemPrice,
                 ]);
