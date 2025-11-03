@@ -1,4 +1,5 @@
 @extends('dashboard.layouts.main')
+<title>Pembayaran</title>
 
 @section('container')
 <div class="py-6 px-6">

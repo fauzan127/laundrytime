@@ -65,7 +65,7 @@
       </a>
       @endif
 
-      <a href="{{ route('profile.edit') }}"
+      <a href="{{ route('profile.index') }}"
         class="nav-item flex items-center justify-start w-4/5 hover:bg-lime-800 px-4 py-2 text-white space-x-3 rounded-md {{ Request::is('dashboard/profile') ? 'bg-lime-800' : '' }}">
         <span class="material-icons-outlined">people</span>
         <span class="sidebar-text transition-opacity duration-300">Profile</span>
