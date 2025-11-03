@@ -1,180 +1,305 @@
 @extends('dashboard.layouts.main')
 
 @section('container')
-<div class="py-2 px-4">
+<div class="py-4 px-4">
     {{-- Flash message --}}
     @if(session('success'))
-    <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-        <span class="block sm:inline">{{ session('success') }}</span>
+    <div class="mb-4 bg-green-50 border-l-4 border-green-500 p-3 rounded-lg">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <svg class="h-4 w-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-green-700">{{ session('success') }}</p>
+            </div>
+        </div>
     </div>
     @endif
 
-    {{-- Greeting --}}
-    <h1 id="greeting" class="text-2xl font-bold mb-4 opacity-0 translate-y-5 transition-all duration-500"></h1>
+    {{-- Header Section --}}
+    <div class="mb-6">
+        <h1 id="greeting" class="text-2xl font-bold text-gray-800 mb-1 opacity-0 translate-y-5 transition-all duration-500"></h1>
+        <p class="text-gray-600 text-sm">Kelola dan pantau semua pesanan laundry</p>
+    </div>
 
-    {{-- Judul --}}
-    <h2 class="text-3xl font-semibold mb-4" style="color: #5f9233;">Daftar Pesanan</h2>
-
-    {{-- Status Cards --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {{-- Diproses Card --}}
-        <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-yellow-500">
-            <div class="flex justify-between items-center">
-                <div>
-                    <p class="text-gray-600 text-sm">Diproses</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $statusCounts['diproses'] ?? 0 }}</p>
+    {{-- Status Summary Cards - Glassmorphism Design --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        {{-- Diproses --}}
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/60 p-5 hover:shadow-2xl hover:border-yellow-300/50 hover:scale-105 transition-all duration-300 group cursor-pointer">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex-1">
+                    <p class="text-gray-600 text-sm font-semibold mb-1">Sedang Diproses</p>
+                    <p class="text-3xl font-bold text-gray-800 group-hover:text-yellow-600 transition-colors">{{ $statusCounts['diproses'] ?? 0 }}</p>
                 </div>
-                <div class="bg-yellow-100 p-3 rounded-full">
-                    <span class="material-icons-outlined text-yellow-600">autorenew</span>
+                <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-yellow-200/50 group-hover:scale-110 transition-all duration-300">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex items-center justify-between">
+                <p class="text-xs text-gray-500 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+                    In the process
+                </p>
+                <div class="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full font-medium">
+                    Active
                 </div>
             </div>
         </div>
 
-        {{-- Siap Antar Card --}}
-        <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500">
-            <div class="flex justify-between items-center">
-                <div>
-                    <p class="text-gray-600 text-sm">Siap Antar</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $statusCounts['siap_antar'] ?? 0 }}</p>
+        {{-- Siap Antar --}}
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/60 p-5 hover:shadow-2xl hover:border-orange-300/50 hover:scale-105 transition-all duration-300 group cursor-pointer">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex-1">
+                    <p class="text-gray-600 text-sm font-semibold mb-1">Siap Diantar</p>
+                    <p class="text-3xl font-bold text-gray-800 group-hover:text-orange-600 transition-colors">{{ $statusCounts['siap_antar'] ?? 0 }}</p>
                 </div>
-                <div class="bg-blue-100 p-3 rounded-full">
-                    <span class="material-icons-outlined text-blue-600">inventory_2</span>
+                <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-orange-200/50 group-hover:scale-110 transition-all duration-300">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex items-center justify-between">
+                <p class="text-xs text-gray-500 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-orange-400 rounded-full"></span>
+                    Ready to ship
+                </p>
+                <div class="text-xs text-orange-600 bg-orange-100 px-2 py-1 rounded-full font-medium">
+                    Ready
                 </div>
             </div>
         </div>
 
-        {{-- Antar Card --}}
-        <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-orange-500">
-            <div class="flex justify-between items-center">
-                <div>
-                    <p class="text-gray-600 text-sm">Antar</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $statusCounts['antar'] ?? 0 }}</p>
+        {{-- Antar --}}
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/60 p-5 hover:shadow-2xl hover:border-blue-300/50 hover:scale-105 transition-all duration-300 group cursor-pointer">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex-1">
+                    <p class="text-gray-600 text-sm font-semibold mb-1">Diantar</p>
+                    <p class="text-3xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors">{{ $statusCounts['antar'] ?? 0 }}</p>
                 </div>
-                <div class="bg-orange-100 p-3 rounded-full">
-                    <span class="material-icons-outlined text-orange-600">local_shipping</span>
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-blue-200/50 group-hover:scale-110 transition-all duration-300">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex items-center justify-between">
+                <p class="text-xs text-gray-500 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
+                    On the way
+                </p>
+                <div class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full font-medium">
+                    Moving
                 </div>
             </div>
         </div>
 
-        {{-- Sampai Tujuan Card --}}
-        <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-green-500">
-            <div class="flex justify-between items-center">
-                <div>
-                    <p class="text-gray-600 text-sm">Sampai Tujuan</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $statusCounts['sampai_tujuan'] ?? 0 }}</p>
+        {{-- Selesai --}}
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/60 p-5 hover:shadow-2xl hover:border-green-300/50 hover:scale-105 transition-all duration-300 group cursor-pointer">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex-1">
+                    <p class="text-gray-600 text-sm font-semibold mb-1">Selesai</p>
+                    <p class="text-3xl font-bold text-gray-800 group-hover:text-green-600 transition-colors">{{ $statusCounts['sampai_tujuan'] ?? 0 }}</p>
                 </div>
-                <div class="bg-green-100 p-3 rounded-full">
-                    <span class="material-icons-outlined text-green-600">check_circle</span>
+                <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-green-200/50 group-hover:scale-110 transition-all duration-300">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex items-center justify-between">
+                <p class="text-xs text-gray-500 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                    Completed
+                </p>
+                <div class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full font-medium">
+                    Done
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Filter & Search --}}
-    <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
-        {{-- Filter Status (kiri) --}}
-        <form method="GET" action="{{ route('dashboard') }}" class="flex items-center">
-            <select name="status" onchange="this.form.submit()"
-                class="px-4 py-2 border border-[#5F9233] rounded-lg bg-white text-[#5F9233] focus:outline-none focus:ring-2 focus:ring-[#5F9233]">
-                <option value="">Semua Status</option>
-                <option value="diproses" {{ request('status') == 'diproses' ? 'selected' : '' }}>Diproses</option>
-                <option value="siap_antar" {{ request('status') == 'siap_antar' ? 'selected' : '' }}>Siap Antar</option>
-                <option value="antar" {{ request('status') == 'antar' ? 'selected' : '' }}>Antar</option>
-                <option value="sampai_tujuan" {{ request('status') == 'sampai_tujuan' ? 'selected' : '' }}>Sampai Tujuan</option>
-                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
-            </select>
-        </form>
+    {{-- Filter & Search Section --}}
+    <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
+        <div class="flex flex-col lg:flex-row gap-3 justify-between items-start lg:items-center">
+            {{-- Filter Status --}}
+            <div class="flex flex-wrap gap-3 items-center">
+                <span class="text-gray-700 font-medium text-sm">Status:</span>
+                <form method="GET" action="{{ route('dashboard') }}">
+                    <select name="status" onchange="this.form.submit()"
+                        class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#5F9233] focus:border-transparent text-sm">
+                        <option value="">Semua Status</option>
+                        <option value="diproses" {{ request('status') == 'diproses' ? 'selected' : '' }}>Diproses</option>
+                        <option value="siap_antar" {{ request('status') == 'siap_antar' ? 'selected' : '' }}>Siap Antar</option>
+                        <option value="antar" {{ request('status') == 'antar' ? 'selected' : '' }}>Antar</option>
+                        <option value="sampai_tujuan" {{ request('status') == 'sampai_tujuan' ? 'selected' : '' }}>Selesai</option>
+                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
+                    </select>
+                </form>
+            </div>
 
-        {{-- Search Nama Pelanggan (kanan) --}}
-        <form method="GET" action="{{ route('dashboard') }}" class="flex w-full sm:w-1/2 md:w-1/3">
-            <input 
-                type="text" 
-                name="search"
-                value="{{ request('search') }}"
-                placeholder="Cari berdasarkan nama pelanggan" 
-                class="flex-1 px-4 py-2 border border-[#5F9233] bg-white rounded-l-lg focus:outline-none focus:ring-2 focus:ring-[#5F9233]"
-            >
-            <button type="submit" class="bg-[#5F9233] text-white px-4 rounded-r-lg flex items-center justify-center hover:bg-[#4C7A2A] transition">
-                <span class="material-icons-outlined text-sm">search</span>
-            </button>
-        </form>
+            {{-- Filter Pengantaran --}}
+            <div class="flex flex-wrap gap-3 items-center">
+                <span class="text-gray-700 font-medium text-sm">Pengantaran:</span>
+                <form method="GET" action="{{ route('dashboard') }}">
+                    <select name="delivery_type" onchange="this.form.submit()"
+                        class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#5F9233] focus:border-transparent text-sm">
+                        <option value="">Semua Jenis</option>
+                        <option value="pengantaran_pribadi" {{ request('delivery_type') == 'pengantaran_pribadi' ? 'selected' : '' }}>Ambil Sendiri</option>
+                        <option value="antar_jemput" {{ request('delivery_type') == 'antar_jemput' ? 'selected' : '' }}>Antar Jemput</option>
+                    </select>
+                </form>
+            </div>
+
+            {{-- Search --}}
+            <form method="GET" action="{{ route('dashboard') }}" class="w-full lg:w-64">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        name="search"
+                        value="{{ request('search') }}"
+                        placeholder="Cari nama pelanggan..." 
+                        class="w-full px-3 py-2 pl-9 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#5F9233] focus:border-transparent text-sm"
+                    >
+                    <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 
     {{-- Tabel Order --}}
-    <div class="overflow-x-auto">
-        <table class="min-w-full border border-gray-300 rounded-lg">
-            <thead style="background-color: #5f9233;" class="text-white">
-                <tr>
-                    <th class="px-4 py-2 text-center">No</th>
-                    <th class="px-4 py-2 text-center">Nama Pelanggan</th>
-                    <th class="px-4 py-2 text-center">No.HP</th>
-                    <th class="px-4 py-2 text-center">Status</th>
-                    <th class="px-4 py-2 text-center">Pengantaran</th>
-                    <th class="px-4 py-2 text-center">Biaya</th>
-                    <th class="px-4 py-2 text-center">Tanggal Pemesanan</th>
-                    <th class="px-4 py-2 text-center">Tanggal Pengantaran</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($orders as $order)
-                <tr class="border-t hover:bg-[#f0f8ea] transition">
-                    <td class="px-4 py-2 text-center">
-                        {{ ($orders->currentPage() - 1) * $orders->perPage() + $loop->iteration }}
-                    </td>
-                    <td class="px-4 py-2 text-center">{{ $order->customer_name }}</td>
-                    <td class="px-4 py-2 text-center">{{ $order->customer_phone }}</td>
-                    <td class="px-4 py-2 text-center">
-                        @switch($order->status)
-                            @case('diproses')
-                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm">Diproses</span>
-                                @break
-                            @case('siap_antar')
-                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">Siap Antar</span>
-                                @break
-                            @case('antar')
-                                <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-sm">Antar</span>
-                                @break
-                            @case('sampai_tujuan')
-                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">Sampai Tujuan</span>
-                                @break
-                            @case('cancelled')
-                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm">Dibatalkan</span>
-                                @break
-                            @default
-                                <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-sm">{{ ucfirst($order->status) }}</span>
-                        @endswitch
-                    </td>
-                    <td class="px-4 py-2 text-center">
-                        @switch($order->delivery_type)
-                            @case('antar_jemput')
-                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">Antar Jemput</span>
-                                @break
-                            @case('pengantaran_pribadi')
-                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-sm">Pengantaran Pribadi</span>
-                                @break
-                            @default
-                                <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-sm">
-                                    {{ ucfirst(str_replace('_', ' ', $order->delivery_type)) }}
-                                </span>
-                        @endswitch
-                    </td>
-                    <td class="px-4 py-2 text-right">Rp{{ number_format($order->total_price, 0, ',', '.') }}</td>
-                    <td class="px-4 py-2 text-center">{{ $order->order_date ? $order->order_date->format('d M Y') : '-' }}</td>
-                    <td class="px-4 py-2 text-center">{{ $order->pickup_date ? $order->pickup_date->format('d M Y') : '-' }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="9" class="text-center py-4 text-gray-500">Belum ada order</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead class="bg-[#5f9233] text-white">
+                    <tr>
+                        <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">No</th>
+                        <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">Nama Pelanggan</th>
+                        <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">No.HP</th>
+                        <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">Status</th>
+                        <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">Pengantaran</th>
+                        <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">Biaya</th>
+                        <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">Tanggal Pemesanan</th>
+                        <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">Tanggal Pengantaran</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @forelse($orders as $order)
+                    <tr class="hover:bg-gray-50 transition-all duration-150">
+                        <td class="px-4 py-3 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                                {{ ($orders->currentPage() - 1) * $orders->perPage() + $loop->iteration }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="font-medium text-gray-900 text-sm">{{ $order->customer_name }}</div>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="text-gray-600 text-sm">{{ $order->customer_phone }}</div>
+                        </td>
+                        {{-- Status --}}
+                        <td class="px-4 py-3 text-center">
+                            @switch($order->status)
+                                @case('diproses')
+                                    <div class="inline-flex items-center gap-1 px-2 py-1 bg-yellow-50 border border-yellow-200 rounded-full">
+                                        <div class="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse"></div>
+                                        <span class="text-xs font-semibold text-yellow-700">Diproses</span>
+                                    </div>
+                                    @break
+                                @case('siap_antar')
+                                    <div class="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 border border-blue-200 rounded-full">
+                                        <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                        <span class="text-xs font-semibold text-blue-700">Siap Antar</span>
+                                    </div>
+                                    @break
+                                @case('antar')
+                                    <div class="inline-flex items-center gap-1 px-2 py-1 bg-orange-50 border border-orange-200 rounded-full">
+                                        <div class="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></div>
+                                        <span class="text-xs font-semibold text-orange-700">Antar</span>
+                                    </div>
+                                    @break
+                                @case('sampai_tujuan')
+                                    <div class="inline-flex items-center gap-1 px-2 py-1 bg-green-50 border border-green-200 rounded-full">
+                                        <div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                                        <span class="text-xs font-semibold text-green-700">Selesai</span>
+                                    </div>
+                                    @break
+                                @case('cancelled')
+                                    <div class="inline-flex items-center gap-1 px-2 py-1 bg-red-50 border border-red-200 rounded-full">
+                                        <div class="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                                        <span class="text-xs font-semibold text-red-700">Dibatalkan</span>
+                                    </div>
+                                    @break
+                                @default
+                                    <div class="inline-flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-200 rounded-full">
+                                        <div class="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                                        <span class="text-xs font-semibold text-gray-700">Unknown</span>
+                                    </div>
+                            @endswitch
+                        </td>
+
+                        {{-- Pengantaran --}}
+                        <td class="px-4 py-3 text-center">
+                            @if($order->delivery_type == 'antar_jemput')
+                                <div class="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 border border-blue-200 rounded-full">
+                                    <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <span class="text-xs font-semibold text-blue-700">Antar Jemput</span>
+                                </div>
+                            @else
+                                <div class="inline-flex items-center gap-1 px-2 py-1 bg-purple-50 border border-purple-200 rounded-full">
+                                    <svg class="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span class="text-xs font-semibold text-purple-700">Ambil Sendiri</span>
+                                </div>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="text-gray-900 text-sm">Rp{{ number_format($order->total_price, 0, ',', '.') }}</span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="text-gray-700 font-medium text-sm">{{ $order->order_date ? $order->order_date->format('d M Y') : '-' }}</div>
+                            <div class="text-gray-500 text-xs">{{ $order->order_date ? $order->order_date->format('H:i') : '' }}</div>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="text-gray-700 font-medium text-sm">{{ $order->pickup_date ? $order->pickup_date->format('d M Y') : '-' }}</div>
+                            <div class="text-gray-500 text-xs">{{ $order->pickup_date ? $order->pickup_date->format('H:i') : '' }}</div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="8" class="px-4 py-8 text-center">
+                            <div class="flex flex-col items-center justify-center text-gray-500">
+                                <svg class="w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                                </svg>
+                                <p class="text-base font-medium text-gray-600 mb-1">Belum ada pesanan</p>
+                                <p class="text-gray-400 text-sm">Pesanan akan muncul di sini ketika ada order baru</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
     {{-- Pagination --}}
-    <div class="mt-4">
-        {{ $orders->links() }}
+    @if($orders->hasPages())
+    <div class="mt-4 bg-white rounded-lg p-3">
+        {{ $orders->onEachSide(1)->links() }}
     </div>
+    @endif
 </div>
 
 {{-- Greeting Script --}}
@@ -200,11 +325,69 @@
 
         const userName = @json(Auth::user()->name);
         const greetingElement = document.getElementById("greeting");
-        greetingElement.innerHTML = `${greetingText}, ${userName}! ${emoji}`;
+        greetingElement.innerHTML = `${greetingText}, <span class="text-[#5F9233]">${userName}</span>! ${emoji}`;
 
         setTimeout(() => {
             greetingElement.classList.remove('opacity-0', 'translate-y-5');
         }, 300);
     });
 </script>
+
+<style>
+    .pagination {
+        display: flex;
+        gap: 0.25rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        justify-content: center;
+    }
+    
+    .pagination li a,
+    .pagination li span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.4rem 0.8rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+        color: #4b5563;
+        text-decoration: none;
+        transition: all 0.2s;
+        font-size: 0.75rem;
+        min-width: 2rem;
+        height: 2rem;
+    }
+    
+    .pagination li.active span {
+        background-color: #5F9233;
+        border-color: #5F9233;
+        color: white;
+    }
+    
+    .pagination li:not(.active) a:hover {
+        background-color: #f8faf6;
+        border-color: #5F9233;
+        color: #5F9233;
+    }
+    
+    .pagination li.disabled span {
+        color: #9ca3af;
+        background-color: #f3f4f6;
+        border-color: #e5e7eb;
+    }
+    
+    .overflow-x-auto::-webkit-scrollbar {
+        height: 4px;
+    }
+    
+    .overflow-x-auto::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+    
+    .overflow-x-auto::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 2px;
+    }
+</style>
 @endsection
