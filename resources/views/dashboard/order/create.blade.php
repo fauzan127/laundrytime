@@ -134,6 +134,7 @@
                                         placeholder="0.0"
                                     >
                                 </div>
+                                @else
                                 <!-- User biasa: Berat otomatis 1 kg, tidak bisa diubah -->
                                 <div class="weight-input ml-6 mt-2 hidden">
                                     <p class="text-xs text-gray-500">Berat: 1 kg (default)</p>
@@ -218,6 +219,7 @@
                                             value="1"
                                         >
                                     </div>
+                                    @else
                                     <div class="weight-input ml-6 mt-2 hidden">
                                         <p class="text-xs text-gray-500">Jumlah: 1 item (default)</p>
                                         <input type="hidden" class="weight-value" value="1">
