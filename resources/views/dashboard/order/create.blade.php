@@ -13,8 +13,39 @@
         <form action="{{ route('order.store') }}" method="POST" class="p-6">
             @csrf
 
-            <!-- Informasi Pelanggan -->
+            <!-- Informasi Pelanggan (Auto-filled dari user login) -->
             <div class="mb-6">
+                @if(Auth::user() && Auth::user()->role === 'user')
+                <div class="mb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <label class="text-sm font-medium text-gray-700 w-32">Nama Lengkap</label>
+                        <span class="text-gray-600">:</span>
+                        <input 
+                            type="text" 
+                            name="customer_name" 
+                            value="{{ Auth::user()->name }}"
+                            class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
+                            readonly
+                        >
+                    </div>
+                    <p class="text-xs text-gray-500 ml-36">Data diambil dari profil Anda</p>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <label class="text-sm font-medium text-gray-700 w-32">No. Whatsapp</label>
+                        <span class="text-gray-600">:</span>
+                        <input 
+                            type="tel" 
+                            name="customer_phone" 
+                            value="{{ Auth::user()->phone ?? Auth::user()->email }}"
+                            class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
+                            readonly
+                        >
+                    </div>
+                    <p class="text-xs text-gray-500 ml-36">Data diambil dari profil Anda</p>
+                </div>
+                @else
                 <div class="mb-4">
                     <div class="flex items-center gap-2 mb-2">
                         <label class="text-sm font-medium text-gray-700 w-32">Nama Lengkap</label>
@@ -48,6 +79,7 @@
                         <p class="text-red-500 text-xs ml-36">{{ $message }}</p>
                     @enderror
                 </div>
+                @endif
             </div>
 
             <!-- Rincian Pesanan -->
@@ -60,13 +92,15 @@
                     </div>
                 @enderror
 
-                <!-- Total Harga Display -->
+                <!-- Total Harga Display (Hanya untuk Admin) -->
+                @if(Auth::user() && Auth::user()->role === 'admin')
                 <div class="bg-green-100 border border-green-500 rounded-lg p-4 mb-4">
                     <div class="flex justify-between items-center">
                         <span class="text-lg font-semibold text-gray-800">Total Harga:</span>
                         <span id="totalPriceDisplay" class="text-xl font-bold text-green-600">Rp 0</span>
                     </div>
                 </div>
+                @endif
 
                 <!-- Reguler (per Kg) -->
                 <div class="mb-4">
@@ -86,6 +120,9 @@
                                     >
                                     <span>{{ $service->name }} (Rp{{ number_format($service->price_per_kg, 0, ',', '.') }}/kg)</span>
                                 </label>
+                                
+                                @if(Auth::user() && Auth::user()->role === 'admin')
+                                <!-- Input Berat: Hanya Admin yang bisa isi -->
                                 <div class="weight-input ml-6 mt-2 hidden">
                                     <label class="text-xs text-gray-600">Berat (kg):</label>
                                     <input
@@ -97,6 +134,12 @@
                                         placeholder="0.0"
                                     >
                                 </div>
+                                <!-- User biasa: Berat otomatis 1 kg, tidak bisa diubah -->
+                                <div class="weight-input ml-6 mt-2 hidden">
+                                    <p class="text-xs text-gray-500">Berat: 1 kg (default)</p>
+                                    <input type="hidden" class="weight-value" value="1">
+                                </div>
+                                @endif
                             </div>
                         @endforeach
                         </div>
@@ -117,6 +160,8 @@
                                         >
                                         <span>{{ $service->name }} (Rp{{ number_format($service->price_per_kg, 0, ',', '.') }}/kg)</span>
                                     </label>
+                                    
+                                    @if(Auth::user() && Auth::user()->role === 'admin')
                                     <div class="weight-input ml-6 mt-2 hidden">
                                         <label class="text-xs text-gray-600">Berat (kg):</label>
                                         <input
@@ -128,6 +173,12 @@
                                             placeholder="0.0"
                                         >
                                     </div>
+                                    @else
+                                    <div class="weight-input ml-6 mt-2 hidden">
+                                        <p class="text-xs text-gray-500">Berat: 1 kg (default)</p>
+                                        <input type="hidden" class="weight-value" value="1">
+                                    </div>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>
@@ -153,6 +204,8 @@
                                         >
                                         <span>{{ $clothing->name }} – Rp{{ number_format($clothing->additional_price, 0, ',', '.') }}</span>
                                     </label>
+                                    
+                                    @if(Auth::user() && Auth::user()->role === 'admin')
                                     <div class="weight-input ml-6 mt-2 hidden">
                                         <label class="text-xs text-gray-600">Jumlah Item:</label>
                                         <input
@@ -165,6 +218,11 @@
                                             value="1"
                                         >
                                     </div>
+                                    <div class="weight-input ml-6 mt-2 hidden">
+                                        <p class="text-xs text-gray-500">Jumlah: 1 item (default)</p>
+                                        <input type="hidden" class="weight-value" value="1">
+                                    </div>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>
@@ -184,6 +242,8 @@
                                         >
                                         <span>{{ $clothing->name }} – Rp{{ number_format($clothing->additional_price, 0, ',', '.') }}</span>
                                     </label>
+                                    
+                                    @if(Auth::user() && Auth::user()->role === 'admin')
                                     <div class="weight-input ml-6 mt-2 hidden">
                                         <label class="text-xs text-gray-600">Jumlah Item:</label>
                                         <input
@@ -196,6 +256,12 @@
                                             value="1"
                                         >
                                     </div>
+                                    @else
+                                    <div class="weight-input ml-6 mt-2 hidden">
+                                        <p class="text-xs text-gray-500">Jumlah: 1 item (default)</p>
+                                        <input type="hidden" class="weight-value" value="1">
+                                    </div>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>
@@ -302,55 +368,54 @@
             <!-- Hidden fields untuk items yang dipilih -->
             <div id="selectedItemsContainer"></div>
 
-            <!-- Status Pembayaran & Tanggal Transaksi -->
-<div class="border-4 border-green-500 rounded-lg p-4 mb-6">
-    <h2 class="text-center font-bold text-gray-800 mb-4 bg-green-200 py-2 rounded">
-        Informasi Pembayaran
-    </h2>
-    
-    <div class="grid grid-cols-2 gap-6">
-        <!-- Status Pembayaran -->
-        @if(Auth::user() && Auth::user()->role === 'admin')
-        <div>
-            <label for="payment_status" class="block text-sm font-medium text-gray-700 mb-2">
-                Status Pembayaran
-            </label>
-            <select 
-                name="payment_status" 
-                id="payment_status"
-                class="w-full px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600 @error('payment_status') border-red-500 @enderror"
-                required
-            >
-                <option value="">-- Pilih Status --</option>
-                <option value="belum_bayar" {{ old('payment_status') == 'belum_bayar' ? 'selected' : '' }}>Belum Bayar</option>
-                <option value="sudah_bayar" {{ old('payment_status') == 'sudah_bayar' ? 'selected' : '' }}>Sudah Bayar</option>
-            </select>
-            @error('payment_status')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-        @endif
+            <!-- Status Pembayaran & Tanggal Transaksi (Hanya Admin) -->
+            @if(Auth::user() && Auth::user()->role === 'admin')
+            <div class="border-4 border-green-500 rounded-lg p-4 mb-6">
+                <h2 class="text-center font-bold text-gray-800 mb-4 bg-green-200 py-2 rounded">
+                    Informasi Pembayaran
+                </h2>
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <!-- Status Pembayaran -->
+                    <div>
+                        <label for="payment_status" class="block text-sm font-medium text-gray-700 mb-2">
+                            Status Pembayaran
+                        </label>
+                        <select 
+                            name="payment_status" 
+                            id="payment_status"
+                            class="w-full px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600 @error('payment_status') border-red-500 @enderror"
+                            required
+                        >
+                            <option value="">-- Pilih Status --</option>
+                            <option value="belum_bayar" {{ old('payment_status') == 'belum_bayar' ? 'selected' : '' }}>Belum Bayar</option>
+                            <option value="sudah_bayar" {{ old('payment_status') == 'sudah_bayar' ? 'selected' : '' }}>Sudah Bayar</option>
+                        </select>
+                        @error('payment_status')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-        <!-- Tanggal Transaksi -->
-        <div>
-            <label for="transaction_date" class="block text-sm font-medium text-gray-700 mb-2">
-                Tanggal Transaksi
-            </label>
-            <input 
-                type="date" 
-                name="transaction_date" 
-                id="transaction_date"
-                value="{{ old('transaction_date', date('Y-m-d')) }}"
-                class="w-full px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600 @error('transaction_date') border-red-500 @enderror"
-                required
-            >
-            @error('transaction_date')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-    </div>
-    
-</div>
+                    <!-- Tanggal Transaksi -->
+                    <div>
+                        <label for="transaction_date" class="block text-sm font-medium text-gray-700 mb-2">
+                            Tanggal Transaksi
+                        </label>
+                        <input 
+                            type="date" 
+                            name="transaction_date" 
+                            id="transaction_date"
+                            value="{{ old('transaction_date', date('Y-m-d')) }}"
+                            class="w-full px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600 @error('transaction_date') border-red-500 @enderror"
+                            required
+                        >
+                        @error('transaction_date')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+            @endif
 
             <!-- Submit Button -->
             <div class="text-center">
@@ -367,6 +432,9 @@
 </div>
 
 <script>
+// Check if user is admin
+const isAdmin = {{ Auth::user() && Auth::user()->role === 'admin' ? 'true' : 'false' }};
+
 // Collect selected services and clothing types
 function updateSelectedItems() {
     const container = document.getElementById('selectedItemsContainer');
@@ -384,14 +452,14 @@ function updateSelectedItems() {
         const serviceId = serviceCheckbox.dataset.serviceId;
         const servicePrice = parseFloat(serviceCheckbox.dataset.servicePrice);
 
-        // Get weight from the corresponding input (berat kg)
-        let weight = 1;
+        // Get weight from the corresponding input
+        let weight = 1; // Default untuk user biasa
         const weightInput = serviceCheckbox.closest('.service-item').querySelector('.weight-value');
         if (weightInput && weightInput.value) {
             weight = parseFloat(weightInput.value) || 1;
         }
 
-        // Calculate item price (only service price)
+        // Calculate item price
         const itemPrice = servicePrice * weight;
         totalPrice += itemPrice;
 
@@ -411,14 +479,14 @@ function updateSelectedItems() {
         const clothingId = clothingCheckbox.dataset.clothingId;
         const clothingPrice = parseFloat(clothingCheckbox.dataset.clothingPrice);
 
-        // Get weight from the corresponding input (jumlah item)
-        let weight = 1;
+        // Get weight from the corresponding input
+        let weight = 1; // Default untuk user biasa
         const weightInput = clothingCheckbox.closest('.clothing-item').querySelector('.weight-value');
         if (weightInput && weightInput.value) {
             weight = parseFloat(weightInput.value) || 1;
         }
 
-        // Calculate item price (only clothing price)
+        // Calculate item price
         const itemPrice = clothingPrice * weight;
         totalPrice += itemPrice;
 
@@ -433,8 +501,13 @@ function updateSelectedItems() {
         itemIndex++;
     });
 
-    // Update total price display
-    document.getElementById('totalPriceDisplay').textContent = 'Rp ' + totalPrice.toLocaleString('id-ID');
+    // Update total price display (hanya untuk admin)
+    if (isAdmin) {
+        const totalPriceElement = document.getElementById('totalPriceDisplay');
+        if (totalPriceElement) {
+            totalPriceElement.textContent = 'Rp ' + totalPrice.toLocaleString('id-ID');
+        }
+    }
 }
 
 // Validasi alamat
@@ -451,21 +524,18 @@ function validateAddress() {
                            address.includes('tuah-karya');
         
         if (address.length > 0 && !isValidArea) {
-            // Alamat tidak valid
             addressAlert.classList.remove('hidden');
             addressInput.classList.remove('border-green-500');
             addressInput.classList.add('border-red-500');
             submitButton.disabled = true;
             return false;
         } else if (address.length > 0 && isValidArea) {
-            // Alamat valid
             addressAlert.classList.add('hidden');
             addressInput.classList.remove('border-red-500');
             addressInput.classList.add('border-green-500');
             submitButton.disabled = false;
             return true;
         } else {
-            // Belum diisi
             addressAlert.classList.add('hidden');
             addressInput.classList.remove('border-red-500');
             addressInput.classList.add('border-green-500');
@@ -473,14 +543,13 @@ function validateAddress() {
             return true;
         }
     } else {
-        // Pengantaran pribadi, no validation needed
         addressAlert.classList.add('hidden');
         submitButton.disabled = false;
         return true;
     }
 }
 
-// Toggle alamat section based on delivery type
+// Toggle alamat section
 function toggleAlamatSection() {
     const deliveryType = document.querySelector('input[name="delivery_type"]:checked').value;
     const alamatSection = document.getElementById('alamatSection');
@@ -514,7 +583,7 @@ function toggleWeightInput(checkbox) {
     }
 }
 
-// Add event listeners
+// Event listeners
 document.addEventListener('DOMContentLoaded', function() {
     const serviceCheckboxes = document.querySelectorAll('.service-checkbox');
     const clothingCheckboxes = document.querySelectorAll('.clothing-checkbox');
@@ -536,12 +605,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Weight input changes
-    document.addEventListener('input', function(e) {
-        if (e.target.classList.contains('weight-value')) {
-            updateSelectedItems();
-        }
-    });
+    // Weight input changes (hanya untuk admin)
+    if (isAdmin) {
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('weight-value')) {
+                updateSelectedItems();
+            }
+        });
+    }
 
     // Delivery type change
     deliveryRadios.forEach(radio => {
@@ -552,7 +623,7 @@ document.addEventListener('DOMContentLoaded', function() {
     addressInput.addEventListener('input', validateAddress);
     addressInput.addEventListener('blur', validateAddress);
 
-    // Initialize on page load
+    // Initialize
     toggleAlamatSection();
     updateSelectedItems();
 });
