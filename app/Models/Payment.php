@@ -28,10 +28,10 @@ class Payment extends Model
     ];
 
     /**
-     * Relasi ke model Order
+     * Relasi ke model Order - YANG BENAR
      */
-    public function payment()
+    public function order()
     {
-        return $this->hasOne(Payment::class, 'order_id', 'id');
+        return $this->belongsTo(Order::class, 'order_id', 'id');
     }
 }

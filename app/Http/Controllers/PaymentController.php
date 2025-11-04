@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Models\Order;
 use App\Models\Payment;
 use Midtrans\Config;
@@ -26,35 +27,36 @@ class PaymentController extends Controller
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        header("Cache-Control: no-cache, no-store, must-revalidate");
-        header("Pragma: no-cache");
-        header("Expires: 0");
+        Log::info('=== PAYMENT PROCESS START ===');
+        Log::info('User: ' . $user->id . ' - ' . $user->name);
 
-        // Ambil order milik user dengan pagination
-        // TAMBAH FILTER: hanya order dengan weight > 0 yang bisa bayar
         $orders = Order::with('payment')
             ->where('user_id', $user->id)
-            ->where('weight', '>', 0) // ← FILTER BARU INI
+            ->where('weight', '>', 0)
             ->latest()
             ->paginate(10);
+
+        Log::info('Orders found: ' . count($orders->items()));
 
         $snapTokens = [];
 
         foreach ($orders as $order) {
             $payment = $order->payment;
 
-            // TAMBAH VALIDASI: pastikan weight > 0 sebelum buat token
             if ($order->weight <= 0) {
                 Log::info('Order ' . $order->id . ' skipped: weight is 0 or null');
-                continue; // Skip order yang weight-nya 0
+                continue;
             }
 
-            if (!$payment || in_array($payment->payment_status, ['Belum Dibayar', 'Menunggu Pembayaran'])) {
-                if ($payment && $payment->token) {
-                    $snapTokens[$order->id] = $payment->token;
-                    continue;
-                }
+            // Gunakan token lama jika status masih Belum Dibayar atau Menunggu Pembayaran
+            if ($payment && in_array($payment->payment_status, ['Belum Dibayar', 'Menunggu Pembayaran']) && $payment->token) {
+                $snapTokens[$order->id] = $payment->token;
+                Log::info('Using existing token for order: ' . $order->id);
+                continue;
+            }
 
+            // Generate token baru jika belum ada payment atau status masih Belum Dibayar
+            if (!$payment || $payment->payment_status === 'Belum Dibayar') {
                 $orderId = 'ORDER-' . $order->id . '-' . uniqid();
 
                 $params = [
@@ -65,13 +67,14 @@ class PaymentController extends Controller
                     'customer_details' => [
                         'first_name' => $user->name,
                         'email' => $user->email,
+                        'phone' => $order->customer_phone ?? '081234567890',
                     ],
                     'item_details' => [
                         [
                             'id' => 'order-' . $order->id,
                             'price' => (int) $order->total_price,
                             'quantity' => 1,
-                            'name' => 'Pembayaran Order #' . $order->id,
+                            'name' => 'Laundry Service - ' . $order->order_number,
                         ]
                     ],
                     'enabled_payments' => [
@@ -88,46 +91,115 @@ class PaymentController extends Controller
                 ];
 
                 try {
+                    Log::info('Generating Snap token for order: ' . $order->id);
                     $snapToken = Snap::getSnapToken($params);
                     $snapTokens[$order->id] = $snapToken;
+                    Log::info('Snap token generated successfully for order: ' . $order->id);
+
+                    DB::beginTransaction();
 
                     if (!$payment) {
                         $payment = new Payment();
                         $payment->order_id = $order->id;
-                        $payment->payment_status = 'Belum Dibayar';
+                        Log::info('Creating NEW payment for order: ' . $order->id);
+                    } else {
+                        Log::info('Updating EXISTING payment for order: ' . $order->id);
                     }
 
+                    $payment->order_number = $order->order_number;
+                    $payment->total_price = $order->total_price;
+                    $payment->customer_name = $order->customer_name ?? $user->name;
+                    $payment->payment_method = 'midtrans';
+                    $payment->payment_status = 'Menunggu Pembayaran';
+                    $payment->amount = $order->total_price;
                     $payment->token = $snapToken;
-                    $payment->save();
+
+                    if (!$payment->save()) {
+                        throw new \Exception('Failed to save payment record');
+                    }
+
+                    DB::commit();
+                    Log::info('Payment saved successfully for order: ' . $order->id . ', Payment ID: ' . $payment->id);
+
                 } catch (\Exception $e) {
+                    DB::rollBack();
                     Log::error('Gagal membuat Snap token untuk order ' . $order->id . ': ' . $e->getMessage());
+                    Log::error('Error details: ' . $e->getFile() . ':' . $e->getLine());
                     $snapTokens[$order->id] = null;
                 }
             }
         }
 
+        Log::info('=== PAYMENT PROCESS END ===');
+        Log::info('Total snap tokens: ' . count(array_filter($snapTokens)));
+
         return view('payment.payment', compact('orders', 'snapTokens'));
     }
 
-    /**
-     * Method tambahan untuk handle case jika ada direct access
-     */
+    public function debugPayments()
+    {
+        $user = Auth::user();
+        $orders = Order::with('payment')->where('user_id', $user->id)->get();
+
+        $debugInfo = [];
+        foreach ($orders as $order) {
+            $debugInfo[] = [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'total_price' => $order->total_price,
+                'weight' => $order->weight,
+                'has_payment' => !is_null($order->payment),
+                'payment_id' => $order->payment ? $order->payment->id : null,
+                'payment_status' => $order->payment ? $order->payment->payment_status : 'No Payment',
+                'payment_data' => $order->payment ? [
+                    'order_number' => $order->payment->order_number,
+                    'total_price' => $order->payment->total_price,
+                    'customer_name' => $order->payment->customer_name,
+                    'token' => $order->payment->token ? substr($order->payment->token, 0, 20) . '...' : 'No Token'
+                ] : 'No Payment Data'
+            ];
+        }
+
+        return response()->json($debugInfo);
+    }
+
+    public function forceCreatePayment($orderId)
+    {
+        $order = Order::findOrFail($orderId);
+        $user = Auth::user();
+
+        try {
+            $payment = Payment::firstOrCreate(
+                ['order_id' => $orderId],
+                [
+                    'order_number' => $order->order_number,
+                    'total_price' => $order->total_price,
+                    'customer_name' => $order->customer_name ?? $user->name,
+                    'payment_method' => 'midtrans',
+                    'payment_status' => 'Belum Dibayar',
+                    'amount' => $order->total_price,
+                    'token' => 'manual-temp-token-' . time()
+                ]
+            );
+
+            Log::info('Force created payment for order: ' . $orderId . ', Payment ID: ' . $payment->id);
+            return redirect()->route('payment.index')->with('success', 'Payment record created manually');
+
+        } catch (\Exception $e) {
+            Log::error('Force create payment failed: ' . $e->getMessage());
+            return redirect()->route('payment.index')->with('error', 'Failed to create payment: ' . $e->getMessage());
+        }
+    }
+
     public function create($orderId)
     {
         $order = Order::findOrFail($orderId);
-        
-        // Validasi weight
+
         if ($order->weight <= 0) {
             return redirect()->route('orders.show', $orderId)
                 ->with('error', 'Belum dapat melakukan pembayaran. Tunggu hingga weight diisi oleh admin.');
         }
-        
-        // Jika sudah ada payment, redirect ke index
-        if ($order->payment) {
-            return redirect()->route('payment.index');
-        }
-        
-        // Jika belum ada payment, redirect ke index juga (akan otomatis generate token)
+
         return redirect()->route('payment.index');
     }
 }

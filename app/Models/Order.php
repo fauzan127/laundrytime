@@ -14,7 +14,7 @@ class Order extends Model
         'order_number',
         'customer_name',
         'customer_phone',
-        'status',
+        'status',           // status order (bukan payment)
         'delivery_type',
         'address',
         'pickup_time',
@@ -24,7 +24,7 @@ class Order extends Model
         'notes',
         'order_date',
         'user_id',
-        'payment_status',
+        // HAPUS: 'payment_status', -> pindah ke tabel payments
         'transaction_date',
     ];
 
@@ -48,6 +48,12 @@ class Order extends Model
     public function payment()
     {
         return $this->hasOne(Payment::class, 'order_id', 'id');
+    }
+
+    // Accessor untuk mendapatkan payment_status dari relasi payment
+    public function getPaymentStatusAttribute()
+    {
+        return $this->payment ? $this->payment->payment_status : 'Belum Dibayar';
     }
 
     protected static function boot()
