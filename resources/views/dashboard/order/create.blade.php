@@ -106,9 +106,13 @@
                 <div class="mb-4">
                     <h3 class="font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-2 rounded">Reguler (per Kg)</h3>
                     <div class="grid grid-cols-2 gap-4">
+                        @php
+                            $regulerServices = $serviceTypes->where('type', 'reguler');
+                            $expressServices = $serviceTypes->where('type', 'express');
+                        @endphp
                         <!-- Kolom Kiri -->
                         <div class="space-y-2">
-                        @foreach($serviceTypes->where('name', '!=', 'Express')->take(2) as $service)
+                        @foreach($regulerServices as $service)
                             <div class="service-item">
                                 <label class="flex items-start gap-2 text-sm">
                                     <input
@@ -148,7 +152,7 @@
                         <!-- Kolom Kanan - Express -->
                         <div class="space-y-2">
                             <h4 class="font-semibold text-gray-700">Express (per Kg)</h4>
-                            @foreach($serviceTypes->where('name', 'Express') as $service)
+                            @foreach($expressServices as $service)
                                 <div class="service-item">
                                     <label class="flex items-start gap-2 text-sm">
                                         <input

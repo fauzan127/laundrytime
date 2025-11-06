@@ -8,6 +8,7 @@ class ServiceType extends Model
 {
     protected $fillable = [
         'name',
+        'type',           // Tambahkan ini
         'description',
         'price_per_kg',
         'is_active'
@@ -21,5 +22,16 @@ class ServiceType extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    // Scope untuk filter by type
+    public function scopeReguler($query)
+    {
+        return $query->where('type', 'reguler');
+    }
+
+    public function scopeExpress($query)
+    {
+        return $query->where('type', 'express');
     }
 }
