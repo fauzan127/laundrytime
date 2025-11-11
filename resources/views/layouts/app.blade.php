@@ -7,6 +7,9 @@
 
     <title>{{ config('app.name', 'Laundry Time') }}</title>
 
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('image/logo.webp') }}" type="image/webp">
+
     <!-- Preconnect untuk percepat koneksi ke font/icon -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

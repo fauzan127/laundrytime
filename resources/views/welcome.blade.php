@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Time Laundry</title>
+  <link rel="icon" href="{{ asset('image/logo.webp') }}" type="image/webp">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 </head>
@@ -14,7 +15,10 @@
   <!-- Navbar -->
 <nav class="bg-[#5F9233] text-white shadow-md fixed w-full top-0 left-0 z-50">
   <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-    <a href="#home" class="text-xl font-bold tracking-wide">Time Laundry</a>
+    <div class="flex items-center space-x-3">
+      <img src="{{ asset('image/logo.webp') }}" alt="Logo" class="h-8 w-auto">
+      <span class="text-xl font-bold tracking-wide">Time Laundry</span>
+    </div>
     <ul class="hidden md:flex gap-8 font-medium">
       <li><a href="#home" class="hover:text-green-200 transition">Home</a></li>
       <li><a href="#pricing" class="hover:text-green-200 transition">Pricing</a></li>

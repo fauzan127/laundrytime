@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>@yield('title', 'Dashboard')</title>
 
+  <!-- Favicon -->
+  <link rel="icon" href="{{ asset('image/logo.webp') }}" type="image/webp">
+
   <!-- Fonts & Tailwind -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -6,9 +6,9 @@
         <!-- Logo & Brand -->
         <div class="flex items-center space-x-3">
           <div class="flex-shrink-0">
-            {{-- <a class="flex items-center">
-              <img src="https://3.bp.blogspot.com/-nhkkjioewh8/Wh5Me3mWRaI/AAAAAAAAFkE/OS6QWZ46RI4jUHftDBod1cane61M8gtkACLcBGAs/s1600/Siak.png" alt="Logo" class="h-12 w-auto transition-transform duration-300">
-            </a> --}}
+            <a href="{{ route('dashboard') }}" class="flex items-center">
+              <img src="{{ asset('image/logo.webp') }}" alt="Logo" class="h-12 w-auto transition-transform duration-300">
+            </a>
           </div>
           <div>
             <h1 class="text-white font-semibold text-base md:text-lg tracking-wide">
