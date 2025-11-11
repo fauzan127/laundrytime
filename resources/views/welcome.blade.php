@@ -27,7 +27,7 @@
     <div class="hidden md:flex gap-4">
 
       <a href="{{ route('login') }}" class="bg-white text-green-700 px-4 py-2 rounded-lg font-semibold hover:bg-green-100 transition">
-        Pesanan Saya
+        Login
       </a>
 
       <a href="{{ route('register') }}" class="bg-white text-green-700 px-4 py-2 rounded-lg font-semibold hover:bg-green-100 transition">
