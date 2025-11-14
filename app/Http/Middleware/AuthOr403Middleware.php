@@ -27,6 +27,16 @@ class AuthOr403Middleware
             return $next($request);
         }
 
+        // Allow access to verification routes if email is not verified
+        if (!$user->hasVerifiedEmail() && ($request->routeIs('verification.code') || $request->routeIs('verification.code.verify') || $request->routeIs('verification.code.resend'))) {
+            return $next($request);
+        }
+
+        // Check if email is verified
+        if (!$user->hasVerifiedEmail()) {
+            return redirect()->route('verification.code')->with('warning', 'Silakan verifikasi email Anda sebelum melanjutkan.');
+        }
+
         // Check if phone and address are filled
         if (empty($user->phone) || empty($user->address)) {
             return redirect()->route('profile.edit')->with('warning', 'Silakan lengkapi profil Anda dengan menambahkan nomor telepon dan alamat sebelum melanjutkan.');

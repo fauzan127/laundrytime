@@ -37,18 +37,27 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Generate verification code
+        $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
             'password' => Hash::make($request->password),
+            'verification_code' => $verificationCode,
+            'verification_code_expires_at' => now()->addMinutes(10),
         ]);
 
         event(new Registered($user));
 
+        // Send verification email with code
+        $user->notify(new \App\Notifications\VerifyEmailWithCode($verificationCode));
+
+        // Login the user but redirect to verification page
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('verification.code');
     }
 }

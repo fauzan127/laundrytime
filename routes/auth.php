@@ -1,4 +1,4 @@
-<?php
+ <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
@@ -46,7 +46,21 @@ Route::middleware('auth')->group(function () {
     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
         ->middleware('throttle:6,1')
         ->name('verification.send');
+});
 
+// New routes for code-based verification
+Route::middleware('auth')->group(function () {
+    Route::get('verify-code', [App\Http\Controllers\Auth\VerifyCodeController::class, 'show'])
+        ->name('verification.code');
+
+    Route::post('verify-code', [App\Http\Controllers\Auth\VerifyCodeController::class, 'verify'])
+        ->name('verification.code.verify');
+
+    Route::post('resend-verification-code', [App\Http\Controllers\Auth\VerifyCodeController::class, 'resend'])
+        ->name('verification.code.resend');
+});
+
+Route::middleware('auth')->group(function () {
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
         ->name('password.confirm');
 

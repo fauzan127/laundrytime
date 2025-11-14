@@ -4,18 +4,7 @@
 <div class="py-4 px-4">
     {{-- Flash message --}}
     @if(session('success'))
-    <div class="mb-4 bg-green-50 border-l-4 border-green-500 p-3 rounded-lg">
-        <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <svg class="h-4 w-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-            </div>
-            <div class="ml-3">
-                <p class="text-sm text-green-700">{{ session('success') }}</p>
-            </div>
-        </div>
-    </div>
+    <div id="success-notification" class="hidden" data-message="{{ session('success') }}"></div>
     @endif
 
     {{-- Header Section --}}
@@ -301,10 +290,27 @@
     </div>
     @endif
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {{-- Greeting Script --}}
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        const successNotification = document.getElementById('success-notification');
+        if (successNotification) {
+            const message = successNotification.getAttribute('data-message');
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: message,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                background: '#f0f9f0',
+                iconColor: '#10b981'
+            });
+        }
+        
         let greetingText = "";
         let emoji = "";
         const hour = new Date().getHours();

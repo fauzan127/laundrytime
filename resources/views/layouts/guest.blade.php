@@ -18,8 +18,10 @@
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <!-- Background Full Screen -->
-        <div class="min-h-screen bg-cover bg-center relative" 
-            style="background-image: linear-gradient(to right, rgba(169, 201, 125, 0.85), rgba(169, 201, 125, 0) 70%), url('{{ asset('image/bg-laundry.jpg') }}')">
+        <div class="min-h-screen bg-cover bg-center relative">
+            <div class="absolute inset-0 bg-cover bg-center filter blur-md" 
+            style="background-image: url('{{ asset('image/bg-laundry.jpg') }}')">
+            </div>
             
             <!-- Overlay -->
             <div class="absolute inset-0 bg-black/20"></div>
@@ -57,10 +59,9 @@
 
                 <!-- Right Side - Login Form with semi-transparent overlay -->
                 <div class="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 relative rounded-l-3xl"
-                style="background-color: rgba(169, 201, 125, 0.9);">
+                    style="background-color: rgba(169, 201, 125, 0.9);">
 
-                    <div class="relative w-full sm:max-w-md px-6 py-6 border overflow-hidden sm:rounded-lg z-10" 
->
+                    <div class="relative w-full sm:max-w-md px-6 py-6 border overflow-hidden sm:rounded-lg z-10">
                         <div class="flex justify-center">
                             <a>
                                 <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
