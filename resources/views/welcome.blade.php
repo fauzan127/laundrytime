@@ -84,8 +84,8 @@
         <b>Time Laundry</b> siap membuat pakaianmu bersih, rapi, dan wangi tanpa bikin kamu kehilangan waktu berharga.
       </p>
       <a href="#services"
-        class="mt-8 inline-block bg-[#CCE1B8] hover:bg-green-700 text-white px-8 py-4 rounded-lg shadow-lg transition">
-        Pesan Sekarang
+        class="mt-8 inline-block bg-[#93b771] hover:bg-green-700 text-white px-8 py-4 rounded-lg shadow-lg transition">
+        Login
       </a>
     </div>
   </section>
