@@ -21,8 +21,8 @@ RUN apt-get update && apt-get install -y \
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy composer files
-COPY composer.json composer.lock ./
+# Copy composer files and artisan
+COPY composer.json composer.lock artisan ./
 
 # Copy environment file
 COPY .env.example .env
