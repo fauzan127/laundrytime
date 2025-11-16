@@ -51,7 +51,7 @@
     <hr class="border-white/20">
 
     <a href="{{ route('login') }}" class="block bg-[#CCE1B8] text-green-700 px-4 py-2 rounded-lg font-semibold">
-      Pesanan Saya
+      Login
     </a>
 
     <a href="{{ route('register') }}" class="block bg-[#CCE1B8] text-green-700 px-4 py-2 rounded-lg font-semibold">
