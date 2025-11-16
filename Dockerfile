@@ -24,8 +24,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy composer files
 COPY composer.json composer.lock ./
 
+# Copy environment file
+COPY .env.example .env
+
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# Generate application key
+RUN php artisan key:generate --no-interaction
 
 # Copy package files
 COPY package.json package-lock.json ./
