@@ -13,6 +13,47 @@
         <form action="{{ route('order.store') }}" method="POST" class="p-6">
             @csrf
 
+            <!-- Informasi Pelanggan (Hanya untuk Admin) -->
+            @if(Auth::user() && Auth::user()->role === 'admin')
+            <div class="border-4 border-green-500 rounded-lg p-4 mb-6">
+                <h2 class="text-center font-bold text-gray-800 mb-4 bg-green-200 py-2 rounded">Informasi Pelanggan</h2>
+
+                <div class="mb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <label class="text-sm font-medium text-gray-700 w-32">Nama Lengkap</label>
+                        <span class="text-gray-600">:</span>
+                        <input
+                            type="text"
+                            name="customer_name"
+                            value="{{ old('customer_name') }}"
+                            class="flex-1 px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600 @error('customer_name') border-red-500 @enderror"
+                            required
+                        >
+                    </div>
+                    @error('customer_name')
+                        <p class="text-red-500 text-xs ml-36">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <label class="text-sm font-medium text-gray-700 w-32">No. Whatsapp</label>
+                        <span class="text-gray-600">:</span>
+                        <input
+                            type="tel"
+                            name="customer_phone"
+                            value="{{ old('customer_phone') }}"
+                            class="flex-1 px-4 py-2 border-2 border-green-500 rounded-lg focus:outline-none focus:border-green-600 @error('customer_phone') border-red-500 @enderror"
+                            required
+                        >
+                    </div>
+                    @error('customer_phone')
+                        <p class="text-red-500 text-xs ml-36">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+            @endif
+
             <!-- Rincian Pesanan -->
             <div class="border-4 border-green-500 rounded-lg p-4 mb-6">
                 <h2 class="text-center font-bold text-gray-800 mb-4 bg-green-200 py-2 rounded">Rincian Pesanan</h2>

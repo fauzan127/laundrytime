@@ -38,12 +38,8 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-
-
         // Validasi input
-        $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'customer_phone' => 'required|string|max:20',
+        $rules = [
             'delivery_type' => 'required|in:antar_jemput,pengantaran_pribadi',
             'address' => 'nullable|string|max:255',
             'pickup_date' => 'nullable|date',
@@ -55,7 +51,15 @@ class OrderController extends Controller
             'items.*.service_type_id' => 'nullable|exists:service_types,id',
             'items.*.clothing_type_id' => 'nullable|exists:clothing_types,id',
             'items.*.weight' => 'required|numeric|min:0.1|max:1000',
-        ]);
+        ];
+
+        // Tambahkan validasi customer_name dan customer_phone hanya untuk admin
+        if (Auth::user()->role === 'admin') {
+            $rules['customer_name'] = 'required|string|max:255';
+            $rules['customer_phone'] = 'required|string|max:20';
+        }
+
+        $validated = $request->validate($rules);
 
         // Pastikan setidaknya salah satu dari service_type_id atau clothing_type_id ada
         foreach ($validated['items'] as $index => $item) {
@@ -83,10 +87,19 @@ class OrderController extends Controller
 
         DB::beginTransaction();
         try {
+            // Tentukan customer_name dan customer_phone berdasarkan role
+            $customerName = Auth::user()->role === 'admin'
+                ? $validated['customer_name']
+                : Auth::user()->name;
+
+            $customerPhone = Auth::user()->role === 'admin'
+                ? $validated['customer_phone']
+                : Auth::user()->phone;
+
             // Simpan order
             $order = Order::create([
-                'customer_name' => $validated['customer_name'],
-                'customer_phone' => $validated['customer_phone'],
+                'customer_name' => $customerName,
+                'customer_phone' => $customerPhone,
                 'delivery_type' => $validated['delivery_type'],
                 'address' => $validated['address'] ?? null,
                 'pickup_date' => $validated['pickup_date'] ?? null,
