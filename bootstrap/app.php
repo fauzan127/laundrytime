@@ -8,7 +8,6 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Illuminate\Routing\Middleware\SubstituteBindings;
-use App\Http\Middleware\AuthOr403Middleware;
 use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\VerifyCsrfToken;
 
@@ -19,10 +18,6 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up'
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->alias([
-            'auth_or_403' => AuthOr403Middleware::class,
-        ]);
-
         $middleware->group('web', [
             TrustProxies::class,
             EncryptCookies::class,

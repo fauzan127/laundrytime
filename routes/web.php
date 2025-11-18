@@ -17,7 +17,7 @@ Route::get('/', function () {
 // Dashboard utama
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'auth_or_403'])->name('dashboard');
+})->middleware(['auth'])->name('dashboard');
 
 // Routes untuk Profile
 Route::middleware('auth', 'auth_or_403')->group(function () {
@@ -28,7 +28,7 @@ Route::middleware('auth', 'auth_or_403')->group(function () {
 });
 
 // Routes utama aplikasi (butuh login)
-Route::middleware('auth', 'auth_or_403')->group(function () {
+Route::middleware('auth')->group(function () {
     // Manajemen Order
     Route::resource('order', OrderController::class);
 });
@@ -40,7 +40,7 @@ Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallba
 
 // Auth routes bawaan Laravel Breeze/Fortify
 
-Route::middleware(['auth', 'auth_or_403'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/report', [DashboardController::class, 'report'])->name('dashboard.report');
     Route::get('/dashboard/tracking', [TrackingController::class, 'index'])->name('tracking.index');
