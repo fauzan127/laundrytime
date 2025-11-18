@@ -21,7 +21,7 @@ class GoogleController extends Controller
 
 
     // Callback dari Google
-    public function handleGoogleCallback()
+    public function handleGoogleCallback(Request $request)
     {
         try {
             $googleUser = Socialite::driver('google')->user();
@@ -35,6 +35,7 @@ class GoogleController extends Controller
                     $user->save();
                 }
                 Auth::login($user);
+                $request->session()->regenerate();
             } else {
                 // Create new user
                 $user = User::create([
@@ -47,6 +48,7 @@ class GoogleController extends Controller
                     'address' => '', // Initialize empty address
                 ]);
                 Auth::login($user);
+                $request->session()->regenerate();
             }
             logger('User logged in:', ['id' => $user->id]);
             return redirect()->route('dashboard');

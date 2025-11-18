@@ -32,9 +32,12 @@ class AuthOr403Middleware
             return $next($request);
         }
 
-        // Check if email is verified
-        if (!$user->hasVerifiedEmail()) {
-            return redirect()->route('verification.code')->with('warning', 'Silakan verifikasi email Anda sebelum melanjutkan.');
+        // Skip email verification for Google users
+        if (!$user->google_id) {
+            // Check if email is verified
+            if (!$user->hasVerifiedEmail()) {
+                return redirect()->route('verification.code')->with('warning', 'Silakan verifikasi email Anda sebelum melanjutkan.');
+            }
         }
 
         // Check if phone and address are filled (skip for Google users if not set)
