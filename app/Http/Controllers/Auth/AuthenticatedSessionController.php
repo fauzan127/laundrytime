@@ -28,7 +28,6 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate(); //Memvalidasi input email dan password, Melempar error jika gagal, atau lanjut jika berhasil.
 
         $request->session()->regenerate(); //Setelah login berhasil, Laravel membuat ulang session ID baru.
-        $request->session()->regenerateToken(); //Regenerasi CSRF token untuk keamanan.
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

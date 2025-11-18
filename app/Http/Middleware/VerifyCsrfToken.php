@@ -15,5 +15,7 @@ class VerifyCsrfToken extends Middleware
         'payment/*',
         'verify-code',
         'resend-verification-code',
+        'login',
+        'register',
     ];
 }
