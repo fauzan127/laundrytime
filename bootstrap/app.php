@@ -21,7 +21,6 @@ $app = Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'auth_or_403' => AuthOr403Middleware::class,
-            'csrf' => VerifyCsrfToken::class, // ⬅️ override alias Laravel
         ]);
 
         $middleware->group('web', [

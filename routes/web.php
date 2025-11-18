@@ -17,10 +17,10 @@ Route::get('/', function () {
 // Dashboard utama
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth_or_403'])->name('dashboard');
+})->middleware(['auth', 'auth_or_403'])->name('dashboard');
 
 // Routes untuk Profile
-Route::middleware('auth_or_403')->group(function () {
+Route::middleware('auth', 'auth_or_403')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -28,7 +28,7 @@ Route::middleware('auth_or_403')->group(function () {
 });
 
 // Routes utama aplikasi (butuh login)
-Route::middleware('auth_or_403')->group(function () {
+Route::middleware('auth', 'auth_or_403')->group(function () {
     // Manajemen Order
     Route::resource('order', OrderController::class);
 });
@@ -40,7 +40,7 @@ Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallba
 
 // Auth routes bawaan Laravel Breeze/Fortify
 
-Route::middleware(['auth_or_403'])->group(function () {
+Route::middleware(['auth', 'auth_or_403'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/report', [DashboardController::class, 'report'])->name('dashboard.report');
     Route::get('/dashboard/tracking', [TrackingController::class, 'index'])->name('tracking.index');
@@ -54,7 +54,7 @@ Route::post('/test-callback', function () {
     return response()->json(['message' => 'Callback OK']);
 });
 
-Route::middleware('auth_or_403')->group(function () {
+Route::middleware('auth', 'auth_or_403')->group(function () {
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
     Route::get('/payment/{id}', [PaymentController::class, 'pay'])->name('payment.pay');
     Route::get('/payment/check-status', [PaymentController::class, 'checkStatus'])->name('payment.checkStatus');
