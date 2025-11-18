@@ -43,6 +43,10 @@ Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallba
 Route::middleware(['auth_or_403'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/report', [DashboardController::class, 'report'])->name('dashboard.report');
+    Route::get('/dashboard/tracking', [TrackingController::class, 'index'])->name('tracking.index');
+    Route::get('/dashboard/tracking/{customerName}', [TrackingController::class, 'show'])->name('tracking.show');
+    Route::post('/dashboard/tracking/{id}/status', [TrackingController::class, 'updateStatus'])->name('tracking.updateStatus');
+    Route::get('/completed-orders', [TrackingController::class, 'completedOrders'])->name('tracking.completed');
 });
 
 Route::post('/payment/callback', [PaymentCallbackController::class, 'handle']);
@@ -62,14 +66,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/payment', [AdminTransactionController::class, 'index'])->name('admin.payment');
     Route::post('/admin/payment/{id}/mark-paid', [AdminTransactionController::class, 'markPaid'])->name('admin.payment.mark-paid');
     Route::post('/admin/payment/{id}/mark-unpaid', [AdminTransactionController::class, 'markUnpaid'])->name('admin.payment.mark-unpaid');
-});
-
-// routes/web.php
-Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard/tracking', [TrackingController::class, 'index'])->name('tracking.index');
-    Route::get('/dashboard/tracking/{customerName}', [TrackingController::class, 'show'])->name('tracking.show');
-    Route::post('/dashboard/tracking/{id}/status', [TrackingController::class, 'updateStatus'])->name('tracking.updateStatus');
-    Route::get('/completed-orders', [TrackingController::class, 'completedOrders'])->name('tracking.completed');
 });
 
 require __DIR__.'/auth.php';
