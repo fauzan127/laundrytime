@@ -24,7 +24,7 @@ class GoogleController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            $googleUser = Socialite::driver('google')->stateless()->user();
+            $googleUser = Socialite::driver('google')->user();
 
             $user = User::where('google_id', $googleUser->getId())->orWhere('email', $googleUser->getEmail())->first();
 
@@ -42,12 +42,16 @@ class GoogleController extends Controller
                     'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
                     'password' => Hash::make(uniqid()), // supaya tidak null
+                    'email_verified_at' => now(), // Mark email as verified for Google users
+                    'phone' => '', // Initialize empty phone
+                    'address' => '', // Initialize empty address
                 ]);
                 Auth::login($user);
             }
             logger('User logged in:', ['id' => $user->id]);
             return redirect()->route('dashboard');
         } catch (\Exception $e) {
+            logger('Google login error:', ['error' => $e->getMessage()]);
             return redirect()->route('login')->with('error', 'Login Google gagal, coba lagi.');
         }
     }

@@ -37,7 +37,7 @@ class AuthOr403Middleware
             return redirect()->route('verification.code')->with('warning', 'Silakan verifikasi email Anda sebelum melanjutkan.');
         }
 
-        // Check if phone and address are filled
+        // Check if phone and address are filled (skip for Google users if not set)
         if (empty($user->phone) || empty($user->address)) {
             return redirect()->route('profile.edit')->with('warning', 'Silakan lengkapi profil Anda dengan menambahkan nomor telepon dan alamat sebelum melanjutkan.');
         }

@@ -35,7 +35,7 @@ Route::middleware('auth_or_403')->group(function () {
 
 // Google OAuth
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
-Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
 
 
 // Auth routes bawaan Laravel Breeze/Fortify
