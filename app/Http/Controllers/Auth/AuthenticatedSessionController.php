@@ -27,6 +27,10 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate(); //Memvalidasi input email dan password, Melempar error jika gagal, atau lanjut jika berhasil.
 
+        if (!auth()->user()->hasVerifiedEmail()) {
+            return redirect()->route('verification.code');
+        }
+
         $request->session()->regenerate(); //Setelah login berhasil, Laravel membuat ulang session ID baru.
 
         return redirect()->intended(route('dashboard', absolute: false));
