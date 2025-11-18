@@ -25,7 +25,14 @@
                         <!-- Verification Code -->
                         <div>
                             <x-input-label for="code" :value="__('Kode Verifikasi')" />
-                            <x-text-input id="code" class="block mt-1 w-full" type="text" name="code" :value="old('code')" required autofocus maxlength="6" />
+                            <x-text-input id="code" 
+                                class="block mt-1 w-full" 
+                                type="text" name="code" 
+                                :value="old('code')" 
+                                required autofocus maxlength="6" 
+                                inputmode="numeric" 
+                                pattern="[0-9]*"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
                             <x-input-error :messages="$errors->get('code')" class="mt-2" />
                         </div>
 
@@ -40,9 +47,9 @@
                         @csrf
 
                         <div class="items-center justify-center">
-                            <x-primary-button type="submit" class="bg-gray-500 hover:bg-gray-600">
+                            <button type="submit" class="hover:text-gray-700 hover:underline">
                                 {{ __('Kirim Ulang Kode') }}
-                            </x-primary-button>
+                            </button>
                         </div>
                     </form>
                 </div>
