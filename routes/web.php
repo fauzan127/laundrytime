@@ -69,3 +69,8 @@ Route::middleware(['auth'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+Route::get('/test-session', function () {
+    session(['abc' => 'xyz']);
+    return session()->all();
+});
