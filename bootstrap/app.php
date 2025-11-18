@@ -30,7 +30,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
             StartSession::class,
             ShareErrorsFromSession::class,
             SubstituteBindings::class,
-            'csrf', // ⬅️ pakai alias
+            VerifyCsrfToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
