@@ -14,13 +14,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Dashboard utama
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
-
 // Routes untuk Profile
-Route::middleware('auth', 'auth_or_403')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -54,7 +49,7 @@ Route::post('/test-callback', function () {
     return response()->json(['message' => 'Callback OK']);
 });
 
-Route::middleware('auth', 'auth_or_403')->group(function () {
+Route::middleware('auth',)->group(function () {
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
     Route::get('/payment/{id}', [PaymentController::class, 'pay'])->name('payment.pay');
     Route::get('/payment/check-status', [PaymentController::class, 'checkStatus'])->name('payment.checkStatus');
