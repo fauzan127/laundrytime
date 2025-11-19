@@ -47,9 +47,6 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        // Login the user but redirect to verification notice page
-        Auth::login($user);
-
         return redirect()->route('dashboard');
     }
 }

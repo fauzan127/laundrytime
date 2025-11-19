@@ -29,7 +29,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         // Selalu redirect ke dashboard setelah login
-        return redirect()->route('dashboard');
+        return redirect()->route('dashboard.index');
     }
 
     /**
