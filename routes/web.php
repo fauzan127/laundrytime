@@ -35,7 +35,7 @@ Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallba
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('/dashboard/report', [DashboardController::class, 'report'])->name('dashboard.report');
     Route::get('/dashboard/tracking', [TrackingController::class, 'index'])->name('tracking.index');
     Route::get('/dashboard/tracking/{customerName}', [TrackingController::class, 'show'])->name('tracking.show');
