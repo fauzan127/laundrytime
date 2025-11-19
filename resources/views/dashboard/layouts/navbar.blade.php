@@ -6,7 +6,7 @@
         <!-- Logo & Brand -->
         <div class="flex items-center space-x-3">
           <div class="flex-shrink-0">
-            <a href="{{ route('dashboard') }}" class="flex items-center">
+            <a href="{{ route('dashboard.index') }}" class="flex items-center">
               <img src="{{ asset('image/logo.webp') }}" alt="Logo" class="h-12 w-auto transition-transform duration-300">
             </a>
           </div>

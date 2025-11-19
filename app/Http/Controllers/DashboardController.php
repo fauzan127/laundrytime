@@ -48,10 +48,10 @@ class DashboardController extends Controller
 
         // Return view based on role
         if ($user && $user->role === 'admin') {
-            return view('dashboard.admin', compact('orders', 'statusCounts'));
+            return view('dashboard.index', compact('orders', 'statusCounts'));
         }
 
-        return view('dashboard.user', compact('orders', 'statusCounts'));
+        return view('dashboard.index', compact('orders', 'statusCounts'));
     }
 
     /**

@@ -52,7 +52,7 @@ class GoogleController extends Controller
                 $request->session()->regenerate();
             }
             logger('User logged in:', ['id' => $user->id]);
-            return redirect()->route('dashboard');
+            return redirect()->route('dashboard.index');
         } catch (\Exception $e) {
             logger('Google login error:', ['error' => $e->getMessage()]);
             return redirect()->route('login')->with('error', 'Login Google gagal, coba lagi.');
