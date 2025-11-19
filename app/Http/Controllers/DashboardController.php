@@ -14,6 +14,9 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
+
+        //  dd(Auth::check(), Auth::user());
+
         $user = Auth::user();
         $query = Order::query();
 
