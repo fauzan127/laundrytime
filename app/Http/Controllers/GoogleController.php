@@ -32,6 +32,7 @@ class GoogleController extends Controller
                 // User exists, update google_id if not set
                 if (!$user->google_id) {
                     $user->google_id = $googleUser->getId();
+                    $user->email_verified_at = now(); // Mark email as verified when linking Google account
                     $user->save();
                 }
                 Auth::login($user);
