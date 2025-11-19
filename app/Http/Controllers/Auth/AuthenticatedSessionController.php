@@ -25,13 +25,11 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate(); //Memvalidasi input email dan password, Melempar error jika gagal, atau lanjut jika berhasil.
+        $request->authenticate();
+        $request->session()->regenerate();
 
-
-
-        $request->session()->regenerate(); //Setelah login berhasil, Laravel membuat ulang session ID baru.
-
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Selalu redirect ke dashboard setelah login
+        return redirect()->route('dashboard');
     }
 
     /**
