@@ -29,6 +29,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         logger('Login successful, user: ' . Auth::id() . ', redirecting to dashboard');
+        logger('Session data after login: ' . json_encode(session()->all()));
 
         // Selalu redirect ke dashboard setelah login
         return redirect()->route('dashboard.index');

@@ -15,6 +15,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         logger('DashboardController::index called, user: ' . (Auth::id() ?? 'null') . ', session: ' . json_encode(session()->all()));
+        logger('Auth guard check: ' . (Auth::check() ? 'true' : 'false'));
 
         $user = Auth::user();
         $query = Order::query();
