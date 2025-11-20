@@ -32,16 +32,12 @@ Route::middleware('auth')->group(function () {
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
 
-
-
-Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('/dashboard/report', [DashboardController::class, 'report'])->name('dashboard.report');
     Route::get('/dashboard/tracking', [TrackingController::class, 'index'])->name('tracking.index');
     Route::get('/dashboard/tracking/{customerName}', [TrackingController::class, 'show'])->name('tracking.show');
     Route::post('/dashboard/tracking/{id}/status', [TrackingController::class, 'updateStatus'])->name('tracking.updateStatus');
     Route::get('/completed-orders', [TrackingController::class, 'completedOrders'])->name('tracking.completed');
-});
 
 Route::post('/payment/callback', [PaymentCallbackController::class, 'handle']);
 Route::post('/test-callback', function () {
