@@ -28,6 +28,8 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
 
+        logger('Login successful, user: ' . Auth::id() . ', redirecting to dashboard');
+
         // Selalu redirect ke dashboard setelah login
         return redirect()->route('dashboard.index');
     }
@@ -37,6 +39,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        logger('Logout called, user: ' . (Auth::id() ?? 'null'));
         Auth::guard('web')->logout(); //Mengeluarkan user dari sistem dengan menghapus data autentikasi dari guard web.
 
         $request->session()->invalidate(); //Menghapus semua data session dari browser.
