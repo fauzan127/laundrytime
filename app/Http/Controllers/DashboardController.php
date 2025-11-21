@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
 use Carbon\Carbon;
+use PDF;
 
 class DashboardController extends Controller
 {
@@ -77,21 +78,57 @@ class DashboardController extends Controller
     /**
      * Show sales report for admin
      */
+    /**
+     * Show sales report for admin
+     */
     public function report(Request $request)
     {
-        // Only allow admin access
+        // ... (Method report tetap sama, logic agregasi data yang sama akan digunakan) ...
         if (!Auth::user() || Auth::user()->role !== 'admin') {
             abort(403);
         }
 
-        // Get period filter (default to monthly)
+        $period = $request->get('period', 'monthly');
+        
+        // Memanggil fungsi helper/private untuk mendapatkan data yang sama
+        $data = $this->getAggregatedSalesData($period);
+
+        return view('dashboard.report', $data);
+    }
+    
+    /**
+     * BARU: Method untuk men-download laporan penjualan ke PDF.
+     */
+    public function exportPdf(Request $request)
+    {
+        // 1. Pastikan hanya admin yang bisa mengakses
+        if (!Auth::user() || Auth::user()->role !== 'admin') {
+            abort(403);
+        }
+
+        // 2. Ambil periode filter
         $period = $request->get('period', 'monthly');
 
-        // Base query for all orders
-        $baseQuery = Order::query();
+        // 3. Ambil data agregasi menggunakan logic yang sama dengan method report()
+        $data = $this->getAggregatedSalesData($period);
 
-        // Aggregate data based on period
-        $salesData = [];
+        // 4. Load view PDF
+        // Asumsi view bernama 'reports.sales_pdf' yang telah Anda buat
+        $pdf = PDF::loadView('reports.sales_pdf', $data);
+
+        // 5. Download file PDF
+        $fileName = 'Laporan_Penjualan_' . ucfirst($period) . '_' . now()->format('Ymd') . '.pdf';
+        return $pdf->download($fileName);
+    }
+
+
+    /**
+     * BARU: Helper method untuk mengambil dan mengagregasi data penjualan (dipindahkan dari report() untuk reusabilitas)
+     */
+    private function getAggregatedSalesData(string $period)
+    {
+        $baseQuery = Order::query();
+        $salesData = collect();
         $totalRevenue = 0;
         $totalTransactions = 0;
 
@@ -152,6 +189,6 @@ class DashboardController extends Controller
                 break;
         }
 
-        return view('dashboard.report', compact('salesData', 'totalRevenue', 'totalTransactions', 'period'));
+        return compact('salesData', 'totalRevenue', 'totalTransactions', 'period');
     }
 }

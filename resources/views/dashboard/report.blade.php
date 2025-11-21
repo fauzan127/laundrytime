@@ -70,6 +70,11 @@
                 <option value="daily" {{ $period == 'daily' ? 'selected' : '' }}>Harian</option>
             </select>
         </form>
+        <a href="{{ route('dashboard.report.export', ['period' => $period]) }}"
+        class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-300 flex items-center shadow-md">
+        <span class="material-icons-outlined mr-2">picture_as_pdf</span>
+        Export PDF ({{ ucfirst($period) }})
+    </a>
     </div>
 
     {{-- Report Table --}}

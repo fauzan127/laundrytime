@@ -37,6 +37,7 @@ Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallba
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('/dashboard/report', [DashboardController::class, 'report'])->name('dashboard.report');
+    Route::get('/dashboard/report/export', [DashboardController::class, 'exportPdf'])->name('dashboard.report.export');
     Route::get('/dashboard/tracking', [TrackingController::class, 'index'])->name('tracking.index');
     Route::get('/dashboard/tracking/{customerName}', [TrackingController::class, 'show'])->name('tracking.show');
     Route::post('/dashboard/tracking/{id}/status', [TrackingController::class, 'updateStatus'])->name('tracking.updateStatus');
@@ -54,6 +55,7 @@ Route::middleware('auth',)->group(function () {
     Route::get('/payment/check-status', [PaymentController::class, 'checkStatus'])->name('payment.checkStatus');
     
 });
+
 
 // Admin Payment Routes
 Route::middleware(['auth'])->group(function () {
