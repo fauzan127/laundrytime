@@ -85,7 +85,7 @@
       </p>
       <a href="#services"
         class="mt-8 inline-block bg-[#93b771] hover:bg-green-700 text-white px-8 py-4 rounded-lg shadow-lg transition">
-        Login
+        Pesan
       </a>
     </div>
   </section>
