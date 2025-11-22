@@ -23,7 +23,7 @@
     <!-- Menu navigasi -->
     <nav id="sidebarNav"
       class="mt-8 flex flex-col space-y-2 items-center w-full transition-all duration-300 flex-1">
-      <a href="/dashboard/index"
+      <a href="{{ route('dashboard.index') }}"
         class="nav-item flex items-center justify-start w-4/5 hover:bg-lime-800 px-4 py-2 text-white space-x-3 rounded-md {{ Request::is('dashboard') ? 'bg-lime-800' : '' }}">
         <span class="material-icons-outlined">home</span>
         <span class="sidebar-text transition-opacity duration-300">Home</span>

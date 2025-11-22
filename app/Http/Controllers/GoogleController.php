@@ -51,7 +51,13 @@ class GoogleController extends Controller
                 Auth::login($user);
                 $request->session()->regenerate();
             }
+
             logger('User logged in:', ['id' => $user->id]);
+
+            if (empty($user->phone) || empty($user->address)) {
+                return redirect()->route('profile.edit');
+            }
+
             return redirect()->route('dashboard.index');
         } catch (\Exception $e) {
             logger('Google login error:', ['error' => $e->getMessage()]);

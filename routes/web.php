@@ -20,6 +20,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Profile completion routes
+    Route::get('/profile/complete', [ProfileController::class, 'showProfileCompletionForm'])->name('profile.complete');
+    Route::post('/profile/complete', [ProfileController::class, 'postProfileCompletion'])->name('profile.complete.post');
 });
 
 // Routes utama aplikasi (butuh login)
@@ -31,8 +35,6 @@ Route::middleware('auth')->group(function () {
 // Google OAuth
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
-
-
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
@@ -73,4 +75,3 @@ Route::get('/test-session', function () {
         'cookie' => request()->cookie()
     ]);
 });
-
