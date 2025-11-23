@@ -1,4 +1,4 @@
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+ <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 
 <aside id="sidebar"
   class="bg-[#5F9233] text-white w-48 transition-all duration-300 flex flex-col justify-between py-6 shadow-none min-h-screen">
@@ -74,16 +74,33 @@
   </div>
 
   <!-- Logout -->
-  <div id="logoutContainer" class="flex justify-start px-4 mt-6 transition-all duration-300">
-    <button id="logoutBtn"
-      onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-      class="nav-item flex items-center justify-start w-4/5 hover:bg-red-700 px-4 py-2 text-white space-x-3 rounded-md mb-2 transition-colors duration-200">
+  <div class="flex justify-center mt-6 transition-all duration-300 max-w-[75%] mx-auto">
+    <button @click.prevent="$dispatch('open-modal', 'logout-confirmation')"
+      class="nav-item flex items-center justify-start w-full hover:bg-red-700 px-4 py-2 text-white space-x-3 rounded-md">
       <span class="material-icons-outlined">logout</span>
       <span class="sidebar-text transition-opacity duration-300">Logout</span>
     </button>
+
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
       @csrf
     </form>
+
+    <x-modal name="logout-confirmation" :show="false" @close-modal.window="$dispatch('close-modal', 'logout-confirmation')">
+      <div class="p-6 text-center">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Konfirmasi Logout</h2>
+        <p class="text-gray-700 dark:text-gray-300 mb-6">Apakah anda yakin ingin logout?</p>
+        <div class="flex justify-center space-x-4">
+          <button @click="$dispatch('close-modal', 'logout-confirmation')" type="button"
+            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600">
+            Batal
+          </button>
+          <button @click.prevent="document.getElementById('logout-form').submit()"
+            class="px-4 py-2 bg-red-600 rounded text-white hover:bg-red-700">
+            Logout
+          </button>
+        </div>
+      </div>
+    </x-modal>
   </div>
 </aside>
 

@@ -67,11 +67,6 @@
                                 <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
                             </a>
                         </div>
-                        <div class="flex justify-center mb-4">
-                            <p class="mt-2 text-lg font-semibold text-gray-700">
-                                Laundry Time
-                            </p>
-                        </div>
                         {{ $slot }}
                     </div>
                 </div>

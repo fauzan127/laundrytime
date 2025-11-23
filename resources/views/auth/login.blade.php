@@ -1,6 +1,11 @@
 <x-guest-layout>
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
+    <div class="flex justify-center mb-4">
+        <p class="mt-2 text-lg font-semibold text-gray-700">
+            Silahkan Login 
+        </p>
+    </div>
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
@@ -9,7 +14,7 @@
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" placeholder="laundrytime@gmail.com" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
@@ -21,7 +26,7 @@
                 <x-text-input id="password" class="block mt-1 w-full pr-10"
                                 type="password"
                                 name="password"
-                                required autocomplete="current-password" />
+                                minlength="8" required autocomplete="current-password" />
                 <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePassword('password')">
                     <svg id="eye-icon-password" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
