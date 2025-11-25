@@ -87,11 +87,11 @@
 
     <x-modal name="logout-confirmation" :show="false" @close-modal.window="$dispatch('close-modal', 'logout-confirmation')">
       <div class="p-6 text-center">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Konfirmasi Logout</h2>
-        <p class="text-gray-700 dark:text-gray-300 mb-6">Apakah anda yakin ingin logout?</p>
+        <h2 class="text-lg font-semibold text-gray-900">Konfirmasi Logout</h2>
+        <p class="text-gray-700 mb-6">Apakah anda yakin ingin logout?</p>
         <div class="flex justify-center space-x-4">
           <button @click="$dispatch('close-modal', 'logout-confirmation')" type="button"
-            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600">
+            class="px-4 py-2 bg-gray-500 rounded hover:bg-gray-400 ">
             Batal
           </button>
           <button @click.prevent="document.getElementById('logout-form').submit()"
