@@ -60,3 +60,8 @@ Route::middleware([AuthOrAbort403::class, EnsureProfileIsComplete::class])->grou
 
 require __DIR__.'/auth.php';
 
+
+// Google OAuth login routes
+Route::get('login/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('login/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
+

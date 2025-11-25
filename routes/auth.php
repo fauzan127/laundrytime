@@ -1,5 +1,6 @@
  <?php
 
+
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -7,6 +8,8 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
@@ -32,9 +35,23 @@ Route::middleware('guest')->group(function () {
         ->name('password.store');
 });
 
-
-
 Route::middleware('auth')->group(function () {
+    Route::get('email/verify', function () {
+        return view('auth.verify-email');
+    })->name('verification.notice');
+
+    Route::get('email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+
+        return redirect('/dashboard');
+    })->middleware(['signed'])->name('verification.verify');
+
+    Route::post('email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('status', 'Verification link sent!');
+    })->name('verification.send');
+
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
         ->name('password.confirm');
 
