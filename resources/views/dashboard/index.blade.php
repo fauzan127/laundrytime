@@ -508,7 +508,14 @@
                         
                         {{-- Berat --}}
                         <td class="px-4 py-3 text-center">
-                            <span class="text-sm text-gray-900">{{ $order->weight ?? '0' }} kg</span>
+                            @php
+                                $weightText = $order->weight ? $order->weight . ' kg' : '0 kg';
+                                $satuanCounts = is_array($order->satuan_counts) ? $order->satuan_counts : [];
+                                foreach ($satuanCounts as $name => $count) {
+                                    $weightText .= '+' . ($count > 1 ? $count . ' ' : '') . $name;
+                                }
+                            @endphp
+                            <span class="text-sm text-gray-900">{{ $weightText }}</span>
                         </td>
                         
                         {{-- Biaya --}}

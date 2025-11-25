@@ -36,9 +36,9 @@ class OrderController extends Controller
     /**
      * Simpan order baru
      */
+
     public function store(Request $request)
     {
-        // Validasi input
         $rules = [
             'delivery_type' => 'required|in:antar_jemput,pengantaran_pribadi',
             'address' => 'nullable|string|max:255',
@@ -53,7 +53,6 @@ class OrderController extends Controller
             'items.*.weight' => 'required|numeric|min:0.1|max:1000',
         ];
 
-        // Tambahkan validasi customer_name dan customer_phone hanya untuk admin
         if (Auth::user()->role === 'admin') {
             $rules['customer_name'] = 'required|string|max:255';
             $rules['customer_phone'] = 'required|string|max:20';
@@ -61,14 +60,15 @@ class OrderController extends Controller
 
         $validated = $request->validate($rules);
 
-        // Pastikan setidaknya salah satu dari service_type_id atau clothing_type_id ada
+        if (!is_array($validated['items'])) {
+            return back()->withInput()->with('error', 'Data items must be an array.');
+        }
         foreach ($validated['items'] as $index => $item) {
             if (empty($item['service_type_id']) && empty($item['clothing_type_id'])) {
                 return back()->withInput()->with('error', "Item " . ($index + 1) . ": Harus memilih setidaknya satu jenis layanan atau jenis pakaian.");
             }
         }
 
-        // Jika antar jemput, wajib isi alamat & cek area
         if ($validated['delivery_type'] === 'antar_jemput') {
             if (empty($validated['address'])) {
                 return back()->withInput()->with('error', 'Alamat wajib diisi untuk layanan Antar Jemput.');
@@ -80,14 +80,8 @@ class OrderController extends Controller
             }
         }
 
-        // Jika admin, validasi payment_status
-        if (Auth::user()->role === 'admin' && isset($validated['payment_status'])) {
-            // Payment status validation
-        }
-
         DB::beginTransaction();
         try {
-            // Tentukan customer_name dan customer_phone berdasarkan role
             $customerName = Auth::user()->role === 'admin'
                 ? $validated['customer_name']
                 : Auth::user()->name;
@@ -96,7 +90,6 @@ class OrderController extends Controller
                 ? $validated['customer_phone']
                 : Auth::user()->phone;
 
-            // Simpan order
             $order = Order::create([
                 'customer_name' => $customerName,
                 'customer_phone' => $customerPhone,
@@ -110,22 +103,45 @@ class OrderController extends Controller
                 'transaction_date' => $validated['transaction_date'] ?? now(),
                 'user_id' => Auth::id(),
                 'order_date' => now(),
+                'weight' => 0,
             ]);
 
             $totalPrice = 0;
+            $totalWeight = 0;
+            $satuanCounts = [];
+            $satuanKeywords = ['bedcover', 'sprei', 'selimut', 'boneka'];
 
-            // Simpan item pesanan
             foreach ($validated['items'] as $item) {
                 $servicePrice = 0;
                 $clothingPrice = 0;
 
+                $clothingType = null;
+                $satuanKey = null;
+                if (!empty($item['clothing_type_id'])) {
+                    $clothingType = ClothingType::find($item['clothing_type_id']);
+                    if ($clothingType) {
+                        $name = strtolower($clothingType->name);
+                        foreach ($satuanKeywords as $keyword) {
+                            if (stripos($name, $keyword) !== false) {
+                                $satuanKey = $keyword;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if ($satuanKey) {
+                    $satuanCounts[$satuanKey] = ($satuanCounts[$satuanKey] ?? 0) + 1;
+                } else {
+                    $totalWeight += $item['weight'];
+                }
+
                 if (!empty($item['service_type_id'])) {
-                    $serviceType = ServiceType::findOrFail($item['service_type_id']);
+                    $serviceType = ServiceType::find($item['service_type_id']);
                     $servicePrice = $serviceType->price_per_kg;
                 }
 
-                if (!empty($item['clothing_type_id'])) {
-                    $clothingType = ClothingType::findOrFail($item['clothing_type_id']);
+                if ($clothingType) {
                     $clothingPrice = $clothingType->additional_price;
                 }
 
@@ -142,20 +158,21 @@ class OrderController extends Controller
                 $totalPrice += $itemPrice;
             }
 
-            // Update total harga
-            $order->update(['total_price' => $totalPrice]);
+            $order->update([
+                'total_price' => $totalPrice,
+                'weight' => $totalWeight,
+                'satuan_counts' => json_encode($satuanCounts),
+            ]);
 
             DB::commit();
 
-            return redirect()->route('order.index')
-                ->with('success', 'Pesanan berhasil dibuat! Total: Rp ' . number_format($totalPrice, 0, ',', '.'));
-
+            return redirect()->route('order.index')->with('success', 'Pesanan berhasil dibuat!');
         } catch (\Exception $e) {
             DB::rollBack();
-
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
 
     /**
      * Detail order
@@ -207,7 +224,10 @@ class OrderController extends Controller
             'items.*.weight' => 'required|numeric|min:0.1|max:1000',
         ]);
 
-        // Pastikan setidaknya salah satu dari service_type_id atau clothing_type_id ada
+        // Validate items: at least one of service_type_id or clothing_type_id must be present
+        if (!is_array($validated['items'])) {
+            return back()->with('error', 'Data items must be an array.');
+        }        
         foreach ($validated['items'] as $index => $item) {
             if (empty($item['service_type_id']) && empty($item['clothing_type_id'])) {
                 return back()->with('error', "Item " . ($index + 1) . ": Harus memilih setidaknya satu jenis layanan atau jenis pakaian.");
@@ -226,23 +246,48 @@ class OrderController extends Controller
                 'notes' => $validated['notes'] ?? null,
                 'payment_status' => $validated['payment_status'] ?? $order->payment_status,
                 'transaction_date' => $validated['transaction_date'] ?? $order->transaction_date,
+                // Don't update weight here yet, will do later after calculating
             ]);
 
             // Hapus item lama
             $order->items()->delete();
 
             $totalPrice = 0;
+            $totalWeight = 0;
+            $satuanCounts = [];
+            $satuanKeywords = ['bedcover', 'sprei', 'selimut', 'boneka'];
+
             foreach ($validated['items'] as $item) {
                 $servicePrice = 0;
                 $clothingPrice = 0;
 
+                $clothingType = null;
+                $satuanKey = null;
+                if (!empty($item['clothing_type_id'])) {
+                    $clothingType = ClothingType::find($item['clothing_type_id']);
+                    if ($clothingType) {
+                        $name = strtolower($clothingType->name);
+                        foreach ($satuanKeywords as $keyword) {
+                            if (stripos($name, $keyword) !== false) {
+                                $satuanKey = $keyword;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if ($satuanKey) {
+                    $satuanCounts[$satuanKey] = ($satuanCounts[$satuanKey] ?? 0) + 1;
+                } else {
+                    $totalWeight += $item['weight'];
+                }
+
                 if (!empty($item['service_type_id'])) {
-                    $serviceType = ServiceType::findOrFail($item['service_type_id']);
+                    $serviceType = ServiceType::find($item['service_type_id']);
                     $servicePrice = $serviceType->price_per_kg;
                 }
 
-                if (!empty($item['clothing_type_id'])) {
-                    $clothingType = ClothingType::findOrFail($item['clothing_type_id']);
+                if ($clothingType) {
                     $clothingPrice = $clothingType->additional_price;
                 }
 
@@ -259,7 +304,11 @@ class OrderController extends Controller
                 $totalPrice += $itemPrice;
             }
 
-            $order->update(['total_price' => $totalPrice]);
+            $order->update([
+                'total_price' => $totalPrice,
+                'weight' => $totalWeight, // Only regular weight
+                'satuan_counts' => json_encode($satuanCounts),
+            ]);
             DB::commit();
 
             return redirect()->route('order.index')->with('success', 'Pesanan berhasil diperbarui!');

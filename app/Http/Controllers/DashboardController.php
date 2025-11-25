@@ -19,7 +19,7 @@ class DashboardController extends Controller
         logger('Auth guard check: ' . (Auth::check() ? 'true' : 'false'));
 
         $user = Auth::user();
-        $query = Order::query();
+        $query = Order::query()->select('id', 'customer_name', 'customer_phone', 'status', 'delivery_type', 'total_price', 'order_date', 'pickup_date', 'weight', 'satuan_counts', 'created_at');
 
         // Role-based filtering
         if ($user && $user->role !== 'admin') {

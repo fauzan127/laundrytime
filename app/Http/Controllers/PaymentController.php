@@ -17,7 +17,7 @@ class PaymentController extends Controller
     {
         // Konfigurasi Midtrans
         Config::$serverKey = env('MIDTRANS_SERVER_KEY');
-        Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
+        Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', true);
         Config::$isSanitized = true;
         Config::$is3ds = true;
 
@@ -134,6 +134,30 @@ class PaymentController extends Controller
         Log::info('Total snap tokens: ' . count(array_filter($snapTokens)));
 
         return view('payment.payment', compact('orders', 'snapTokens'));
+    }
+
+    /**
+     * Check if any payment statuses for the authenticated user's orders have changed
+     * Returns JSON with { updated: bool }
+     */
+    public function checkStatus(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['updated' => false, 'message' => 'User not authenticated']);
+        }
+
+        $orders = Order::with('payment')->where('user_id', $user->id)->get();
+
+        // Here, we could compare current statuses with cached/previous status.
+        // For simplicity, let's just return true if any payment is still waiting payment status.
+
+        $hasWaitingPayment = $orders->contains(function ($order) {
+            return $order->payment && $order->payment->payment_status === 'Menunggu Pembayaran';
+        });
+
+        return response()->json(['updated' => $hasWaitingPayment]);
     }
 
     public function debugPayments()

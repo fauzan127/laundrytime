@@ -14,17 +14,17 @@ class Order extends Model
         'order_number',
         'customer_name',
         'customer_phone',
-        'status',           // status order (bukan payment)
+        'status',           
         'delivery_type',
         'address',
         'pickup_time',
         'pickup_date',
         'weight',
         'total_price',
+        'satuan_counts',
         'notes',
         'order_date',
         'user_id',
-        // HAPUS: 'payment_status', -> pindah ke tabel payments
         'transaction_date',
     ];
 
@@ -33,6 +33,7 @@ class Order extends Model
         'order_date' => 'datetime',
         'pickup_date' => 'date',
         'transaction_date' => 'datetime',
+        'satuan_counts' => 'array',
     ];
 
     public function items()

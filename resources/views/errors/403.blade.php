@@ -14,7 +14,7 @@
         
         <!-- Tombol kembali -->
         <a href="{{ url('/') }}"
-           class="bg-red-300 hover:bg-red-600 hover:text-white font-semibold py-4 px-8 rounded-lg transition">
+           class="bg-green-200 hover:bg-green-500 hover:text-white font-semibold py-4 px-8 rounded-lg transition">
            Beranda
         </a>
     </div>
