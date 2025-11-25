@@ -18,7 +18,9 @@ class OrderController extends Controller
     public function index()
     {
         // Ambil semua order terbaru
-        $orders = Order::orderBy('created_at', 'desc')->paginate(10);
+        $orders = Order::with('items.serviceType')
+                   ->orderBy('created_at', 'desc')
+                   ->paginate(10);
         return view('dashboard.order.index', compact('orders'));
     }
 

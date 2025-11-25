@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Order;
+use App\Models\ServiceType;
 
 class OrderItem extends Model
 {
