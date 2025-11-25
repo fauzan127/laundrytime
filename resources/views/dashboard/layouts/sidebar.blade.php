@@ -7,7 +7,7 @@
   <div class="flex flex-col flex-1 items-center">
 
     <!-- Tombol toggle di atas foto profil -->
-    <div class="flex justify-center mb-4">
+  <div class="flex justify-center mb-4" style="display:none;">
       <button id="toggleBtn"
         class="w-10 h-10 flex items-center justify-center rounded-md hover:bg-lime-800 transition-colors duration-300">
         <span class="material-icons-outlined text-white" id="toggleIcon">chevron_left</span>
@@ -104,39 +104,52 @@
   </div>
 </aside>
 
-<!-- Script -->
-<script>
-  const sidebar = document.getElementById('sidebar');
-  const toggleBtn = document.getElementById('toggleBtn');
-  const sidebarTexts = document.querySelectorAll('.sidebar-text');
-  const toggleIcon = document.getElementById('toggleIcon');
-  const navItems = document.querySelectorAll('.nav-item');
-  const logoutContainer = document.getElementById('logoutContainer');
+  <!-- Script -->
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const sidebarTexts = document.querySelectorAll('.sidebar-text');
+    const navItems = document.querySelectorAll('.nav-item');
+    const logoutContainer = document.querySelector('div.flex.justify-center.mt-6');
 
-  toggleBtn.addEventListener('click', () => {
-    const isOpen = sidebar.classList.contains('w-48');
+    function expandSidebar() {
+      sidebar.classList.remove('w-20');
+      sidebar.classList.add('w-48');
 
-    sidebar.classList.toggle('w-20', isOpen);
-    sidebar.classList.toggle('w-48', !isOpen);
-
-    sidebarTexts.forEach(el => {
-      if (isOpen) {
-        el.classList.add('opacity-0');
-        setTimeout(() => el.classList.add('hidden'), 200);
-      } else {
+      sidebarTexts.forEach(el => {
         el.classList.remove('hidden');
         setTimeout(() => el.classList.remove('opacity-0'), 50);
-      }
-    });
+      });
 
-    toggleIcon.textContent = isOpen ? 'menu' : 'chevron_left';
+      navItems.forEach(item => {
+        item.classList.remove('justify-center');
+        item.classList.add('justify-start');
+      });
 
-    navItems.forEach(item => {
-      item.classList.toggle('justify-center', isOpen);
-      item.classList.toggle('justify-start', !isOpen);
-    });
+      logoutContainer.classList.remove('justify-center');
+      logoutContainer.classList.add('justify-start');
+    }
 
-    logoutContainer.classList.toggle('justify-center', isOpen);
-    logoutContainer.classList.toggle('justify-start', !isOpen);
-  });
-</script>
+    function collapseSidebar() {
+      sidebar.classList.remove('w-48');
+      sidebar.classList.add('w-20');
+
+      sidebarTexts.forEach(el => {
+        el.classList.add('opacity-0');
+        setTimeout(() => el.classList.add('hidden'), 200);
+      });
+
+      navItems.forEach(item => {
+        item.classList.add('justify-center');
+        item.classList.remove('justify-start');
+      });
+
+      logoutContainer.classList.add('justify-center');
+      logoutContainer.classList.remove('justify-start');
+    }
+
+    sidebar.addEventListener('mouseenter', expandSidebar);
+    sidebar.addEventListener('mouseleave', collapseSidebar);
+
+    // Initialize collapsed state
+    collapseSidebar();
+  </script>
