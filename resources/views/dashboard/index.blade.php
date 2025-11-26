@@ -174,7 +174,7 @@
                         <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">No</th>
                         <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">Nama Pelanggan</th>
                         <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">No.HP</th>
-                        <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">Status</th>
+                        <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">Status Kain</th>
                         <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">Pengantaran</th>
                         <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">Biaya</th>
                         <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wider">Tanggal Pemesanan</th>
@@ -441,7 +441,7 @@
                     <tr>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">No</th>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Tanggal</th>
-                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Status</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Status Kain</th>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Berat</th>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Biaya</th>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Pengantaran</th>
