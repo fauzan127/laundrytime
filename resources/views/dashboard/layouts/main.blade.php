@@ -36,7 +36,7 @@
     @include('dashboard.layouts.sidebar')
 
     {{-- Konten utama --}}
-    <main class="flex-1 p-4 md:p-6">
+    <main class="flex-1 p-4 md:p-6 overflow-x-hidden">
       @yield('container')
     </main>
 
