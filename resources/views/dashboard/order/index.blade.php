@@ -78,7 +78,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $order->customer_name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $order->customer_phone }}</td>
                             {{-- Asumsi 'customer_address' adalah kolom yang menyimpan alamat --}}
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $order->customer_address ?? 'N/A' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $order->address ?? 'N/A' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                                     @if($order->payment_status == 'sudah_bayar') bg-green-100 text-green-700
