@@ -63,11 +63,11 @@
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
-                                <span>TANGGAL PEMESANAN</span>
+                                <span>TANGGAL</span>
                             </div>
                         </th>
                         <th class="px-4 py-3 text-center font-semibold text-white border-r border-white/20">BIAYA</th>
-                        <th class="px-4 py-3 text-center font-semibold text-white border-r border-white/20">STATUS PEMBAYARAN</th>
+                        <th class="px-4 py-3 text-center font-semibold text-white border-r border-white/20">STATUS</th>
                         <th class="px-4 py-3 text-center font-semibold text-white">AKSI</th>
                     </tr>
                 </thead>
@@ -98,21 +98,13 @@
                         <td class="px-4 py-3 text-center">
                             @php
                                 $currentPaymentStatus = $order->payment ? $order->payment->payment_status : 'Belum Dibayar';
-                                $isPaymentFinalized = $order->payment ? $order->payment->created_at->eq($order->payment->updated_at) : false;
                             @endphp
 
                             @if($currentPaymentStatus === 'Belum Dibayar')
-                                @if($isPaymentFinalized)
-                                    <div class="inline-flex items-center justify-center gap-1 px-2 py-1 bg-red-50 border border-red-200 rounded-full text-xs">
-                                        <div class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                                        <span class="font-semibold text-red-700">Belum Bayar</span>
-                                    </div>
-                                @else
-                                    <div class="inline-flex items-center justify-center gap-1 px-2 py-1 bg-gray-50 border border-gray-200 rounded-full text-xs">
-                                        <div class="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
-                                        <span class="font-semibold text-gray-600">Menunggu Konfirmasi</span>
-                                    </div>
-                                @endif
+                                <div class="inline-flex items-center justify-center gap-1 px-2 py-1 bg-red-50 border border-red-200 rounded-full text-xs">
+                                    <div class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
+                                    <span class="font-semibold text-red-700">Belum Bayar</span>
+                                </div>
                             @elseif($currentPaymentStatus === 'Menunggu Pembayaran')
                                 <div class="inline-flex items-center justify-center gap-1 px-2 py-1 bg-yellow-50 border border-yellow-200 rounded-full text-xs">
                                     <div class="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse"></div>
@@ -130,54 +122,51 @@
                         
                         <!-- Aksi -->
                         <td class="px-4 py-3 text-center">
+                            @if($order->weight > 0)
                             @php
-                                $isPaymentFinalized = $order->payment ? $order->payment->created_at->eq($order->payment->updated_at) : false;
-                                $currentPaymentStatus = $order->payment ? $order->payment->payment_status : 'Belum Dibayar';
+                                $status = $order->payment->payment_status ?? 'Belum Dibayar';
                             @endphp
-
-                            @if($isPaymentFinalized)
-                                {{-- TAMPILAN JIKA PAYMENT SUDAH FINAL (created_at = updated_at) --}}
-                                @if(in_array($currentPaymentStatus, ['Belum Dibayar', 'Menunggu Pembayaran']))
-                                    @if(isset($snapTokens[$order->id]) && $snapTokens[$order->id])
-                                        <button onclick="payWithSnap('{{ $snapTokens[$order->id] }}', {{ $order->id }})"
-                                            class="pay-button inline-flex items-center justify-center gap-1 bg-gradient-to-r from-[#5f9233] to-[#6ba83a] text-white px-3 py-1.5 rounded-lg hover:from-[#4a7a29] hover:to-[#5f9233] transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 group mx-auto text-xs">
-                                            <svg class="w-3 h-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                                            </svg>
-                                            <span class="font-medium">Bayar</span>
-                                        </button>
-                                    @else
-                                        <span class="inline-flex items-center justify-center gap-1 px-2 py-1 bg-red-50 text-red-700 rounded-lg text-xs mx-auto">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            Token Error
-                                        </span>
-                                    @endif
-                                @elseif($currentPaymentStatus === 'Sudah Dibayar')
-                                    <span class="inline-flex items-center justify-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs mx-auto">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            @if(in_array($status, ['Belum Dibayar', 'Menunggu Pembayaran']))
+                                @if(isset($snapTokens[$order->id]) && $snapTokens[$order->id])
+                                    <button onclick="payWithSnap('{{ $snapTokens[$order->id] }}', {{ $order->id }})"
+                                        class="pay-button inline-flex items-center justify-center gap-1 bg-gradient-to-r from-[#5f9233] to-[#6ba83a] text-white px-3 py-1.5 rounded-lg hover:from-[#4a7a29] hover:to-[#5f9233] transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 group mx-auto text-xs">
+                                        <svg class="w-3 h-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
                                         </svg>
-                                        Lunas
-                                    </span>
+                                        <span class="font-medium">Bayar</span>
+                                    </button>
                                 @else
-                                    <span class="inline-flex items-center justify-center gap-1 px-2 py-1 bg-gray-50 text-gray-500 rounded-lg text-xs mx-auto">
+                                    <span class="inline-flex items-center justify-center gap-1 px-2 py-1 bg-red-50 text-red-700 rounded-lg text-xs mx-auto">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
-                                        Status Tidak Dikenal
+                                        Token Error
                                     </span>
                                 @endif
-                            @else
-                                {{-- TAMPILAN JIKA PAYMENT BELUM FINAL (created_at != updated_at) --}}
-                                <span class="inline-flex items-center justify-center gap-1 px-2 py-1 bg-yellow-50 text-yellow-700 rounded-lg text-xs mx-auto">
+                            @elseif($status === 'Sudah Dibayar')
+                                <span class="inline-flex items-center justify-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs mx-auto">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
-                                    Menunggu Konfirmasi Berat
+                                    Lunas
+                                </span>
+                            @else
+                                <span class="inline-flex items-center justify-center gap-1 px-2 py-1 bg-gray-50 text-gray-500 rounded-lg text-xs mx-auto">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Status Tidak Dikenal
                                 </span>
                             @endif
+                        @else
+                            {{-- TAMPILAN JIKA WEIGHT = 0 --}}
+                            <span class="inline-flex items-center justify-center gap-1 px-2 py-1 bg-yellow-50 text-yellow-700 rounded-lg text-xs mx-auto">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Menunggu Weight
+                            </span>
+                        @endif
                         </td>
                     </tr>
                     @endforeach
