@@ -10,6 +10,9 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class OrderController extends Controller
 {
@@ -329,7 +332,7 @@ class OrderController extends Controller
                 $payment = $order->payment;
                 if (!$payment) {
                     // Create new payment record
-                    Payment::create([
+                    $payment = Payment::create([
                         'order_id' => $order->id,
                         'order_number' => $order->order_number,
                         'total_price' => $totalPrice,
@@ -346,6 +349,61 @@ class OrderController extends Controller
                         'payment_status' => 'Belum Dibayar',
                         'updated_at' => $payment->created_at, // This makes created_at == updated_at, marking as finalized
                     ]);
+                }
+
+                // Generate Midtrans token for finalized payment
+                try {
+                    Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+                    Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', true);
+                    Config::$isSanitized = true;
+                    Config::$is3ds = true;
+
+                    $orderId = 'ORDER-' . $order->id . '-' . uniqid();
+
+                    $params = [
+                        'transaction_details' => [
+                            'order_id' => $orderId,
+                            'gross_amount' => (int) $totalPrice,
+                        ],
+                        'customer_details' => [
+                            'first_name' => $order->customer_name,
+                            'email' => $order->user->email ?? 'customer@example.com',
+                            'phone' => $order->customer_phone ?? '081234567890',
+                        ],
+                        'item_details' => [
+                            [
+                                'id' => 'order-' . $order->id,
+                                'price' => (int) $totalPrice,
+                                'quantity' => 1,
+                                'name' => 'Laundry Service - ' . $order->order_number,
+                            ]
+                        ],
+                        'enabled_payments' => [
+                            'credit_card',
+                            'gopay',
+                            'qris',
+                            'bank_transfer',
+                            'shopeepay',
+                            'permata_va',
+                            'bca_va',
+                            'bni_va',
+                            'other_va',
+                        ],
+                    ];
+
+                    $snapToken = Snap::getSnapToken($params);
+
+                    $payment->update([
+                        'token' => $snapToken,
+                        'payment_status' => 'Menunggu Pembayaran', // Change to waiting for payment after token is generated
+                    ]);
+
+                    Log::info('Token generated successfully for finalized payment order: ' . $order->id);
+
+                } catch (\Exception $e) {
+                    Log::error('Failed to generate token for finalized payment order ' . $order->id . ': ' . $e->getMessage());
+                    // Don't fail the entire transaction if token generation fails
+                    // The payment will still be finalized, and token can be generated later in PaymentController
                 }
             }
 
