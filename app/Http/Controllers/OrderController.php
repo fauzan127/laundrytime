@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ServiceType;
 use App\Models\ClothingType;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -322,6 +323,32 @@ class OrderController extends Controller
                 'weight' => $totalWeight, // Only regular weight
                 'satuan_counts' => json_encode($satuanCounts),
             ]);
+
+            // Handle payment record after weight update
+            if ($totalWeight > 0) {
+                $payment = $order->payment;
+                if (!$payment) {
+                    // Create new payment record
+                    Payment::create([
+                        'order_id' => $order->id,
+                        'order_number' => $order->order_number,
+                        'total_price' => $totalPrice,
+                        'customer_name' => $order->customer_name,
+                        'payment_method' => 'midtrans',
+                        'payment_status' => 'Belum Dibayar',
+                        'amount' => $totalPrice,
+                    ]);
+                } else {
+                    // Update existing payment and "finalize" it by setting updated_at = created_at
+                    $payment->update([
+                        'total_price' => $totalPrice,
+                        'amount' => $totalPrice,
+                        'payment_status' => 'Belum Dibayar',
+                        'updated_at' => $payment->created_at, // This makes created_at == updated_at, marking as finalized
+                    ]);
+                }
+            }
+
             DB::commit();
 
             return redirect()->route('order.index')->with('success', 'Pesanan berhasil diperbarui!');
