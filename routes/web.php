@@ -17,7 +17,7 @@ Route::get('/', function () {
 });
 
 
-Route::middleware([AuthOrAbort403::class, EnsureProfileIsComplete::class])->group(function () {
+Route::middleware(['auth', 'verified', AuthOrAbort403::class, EnsureProfileIsComplete::class])->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -25,12 +25,12 @@ Route::middleware([AuthOrAbort403::class, EnsureProfileIsComplete::class])->grou
 });
 
 // Routes utama aplikasi (butuh login)
-Route::middleware([AuthOrAbort403::class, EnsureProfileIsComplete::class])->group(function () {
+Route::middleware(['auth', 'verified', AuthOrAbort403::class, EnsureProfileIsComplete::class])->group(function () {
     // Manajemen Order
     Route::resource('order', OrderController::class);
 });
 
-Route::middleware([AuthOrAbort403::class, EnsureProfileIsComplete::class])->group(function () {
+Route::middleware(['auth', 'verified', AuthOrAbort403::class, EnsureProfileIsComplete::class])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('/dashboard/report', [DashboardController::class, 'report'])->name('dashboard.report');
     Route::get('/dashboard/report/export', [DashboardController::class, 'exportPdf'])->name('dashboard.report.export');
@@ -40,19 +40,15 @@ Route::middleware([AuthOrAbort403::class, EnsureProfileIsComplete::class])->grou
     Route::get('/completed-orders', [TrackingController::class, 'completedOrders'])->name('tracking.completed');
 });
 
-Route::post('/payment/callback', [PaymentCallbackController::class, 'handle']);
-Route::post('/test-callback', function () {
-    return response()->json(['message' => 'Callback OK']);
-});
 
-Route::middleware([AuthOrAbort403::class, EnsureProfileIsComplete::class])->group(function () {
+Route::middleware(['auth', 'verified', AuthOrAbort403::class, EnsureProfileIsComplete::class])->group(function () {
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
     Route::get('/payment/{id}', [PaymentController::class, 'pay'])->name('payment.pay');
     Route::get('/payment/check-status', [PaymentController::class, 'checkStatus'])->name('payment.checkStatus');
 });
 
 // Admin Payment Routes
-Route::middleware([AuthOrAbort403::class, EnsureProfileIsComplete::class])->group(function () {
+Route::middleware(['auth', 'verified', AuthOrAbort403::class, EnsureProfileIsComplete::class])->group(function () {
     Route::get('/admin/payment', [AdminTransactionController::class, 'index'])->name('admin.payment');
     Route::post('/admin/payment/{id}/mark-paid', [AdminTransactionController::class, 'markPaid'])->name('admin.payment.mark-paid');
     Route::post('/admin/payment/{id}/mark-unpaid', [AdminTransactionController::class, 'markUnpaid'])->name('admin.payment.mark-unpaid');

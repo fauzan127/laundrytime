@@ -21,8 +21,8 @@ class AdminUserSeeder extends Seeder
             'role' => 'admin',
             'phone' => '08528374478',
             'address' => 'Jalan Jalan',
+            'email_verified_at' => now(),
 
-            
         ]);
         User::create([
         'name' => 'User',
@@ -31,6 +31,7 @@ class AdminUserSeeder extends Seeder
             'role' => 'user',
             'phone' => '089786756437',
             'address' => 'Jalan Jalan',
+            'email_verified_at' => now(),
         ]);
     }
 }
