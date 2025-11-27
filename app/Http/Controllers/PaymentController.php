@@ -30,9 +30,11 @@ class PaymentController extends Controller
         Log::info('=== PAYMENT PROCESS START ===');
         Log::info('User: ' . $user->id . ' - ' . $user->name);
 
+        // Ubah query untuk mengecualikan order dengan weight = 1.0 dari proses pembayaran
         $orders = Order::with('payment')
             ->where('user_id', $user->id)
             ->where('weight', '>', 0)
+            ->where('weight', '!=', 1.0) // Tambahkan kondisi untuk mengecualikan weight = 1.0
             ->latest()
             ->paginate(10);
 
@@ -43,8 +45,9 @@ class PaymentController extends Controller
         foreach ($orders as $order) {
             $payment = $order->payment;
 
-            if ($order->weight <= 0) {
-                Log::info('Order ' . $order->id . ' skipped: weight is 0 or null');
+            // Skip jika weight sama dengan 1.0 (tombol bayar tidak aktif)
+            if ($order->weight == 1.0) {
+                Log::info('Order ' . $order->id . ' skipped: weight is exactly 1.0, payment button disabled');
                 continue;
             }
 
@@ -157,6 +160,13 @@ class PaymentController extends Controller
         Log::info('=== PAYMENT PROCESS END ===');
         Log::info('Total snap tokens: ' . count(array_filter($snapTokens)));
 
+        // Untuk menampilkan semua order termasuk yang weight = 1.0 di view
+        $orders = Order::with('payment')
+            ->where('user_id', $user->id)
+            ->where('weight', '>', 0)
+            ->latest()
+            ->paginate(10);
+
         return view('payment.payment', compact('orders', 'snapTokens'));
     }
 
@@ -172,7 +182,11 @@ class PaymentController extends Controller
             return response()->json(['updated' => false, 'message' => 'User not authenticated']);
         }
 
-        $orders = Order::with('payment')->where('user_id', $user->id)->get();
+        // Hanya periksa order yang tidak memiliki weight = 1.0
+        $orders = Order::with('payment')
+            ->where('user_id', $user->id)
+            ->where('weight', '!=', 1.0)
+            ->get();
 
         // Here, we could compare current statuses with cached/previous status.
         // For simplicity, let's just return true if any payment is still waiting payment status.
@@ -204,7 +218,8 @@ class PaymentController extends Controller
                     'total_price' => $order->payment->total_price,
                     'customer_name' => $order->payment->customer_name,
                     'token' => $order->payment->token ? substr($order->payment->token, 0, 20) . '...' : 'No Token'
-                ] : 'No Payment Data'
+                ] : 'No Payment Data',
+                'payment_button_disabled' => $order->weight == 1.0
             ];
         }
 
@@ -215,6 +230,11 @@ class PaymentController extends Controller
     {
         $order = Order::findOrFail($orderId);
         $user = Auth::user();
+
+        // Cek jika weight sama dengan 1.0
+        if ($order->weight == 1.0) {
+            return redirect()->route('payment.index')->with('error', 'Tidak dapat membuat pembayaran. Weight order adalah 1.0, tombol bayar dinonaktifkan.');
+        }
 
         try {
             $payment = Payment::firstOrCreate(
@@ -243,11 +263,36 @@ class PaymentController extends Controller
     {
         $order = Order::findOrFail($orderId);
 
+        // Ubah logika dari weight <= 0 menjadi weight == 1.0
+        if ($order->weight == 1.0) {
+            return redirect()->route('orders.show', $orderId)
+                ->with('error', 'Belum dapat melakukan pembayaran. Weight order adalah 1.0, tombol bayar dinonaktifkan.');
+        }
+
+        // Juga cek jika weight masih 0
         if ($order->weight <= 0) {
             return redirect()->route('orders.show', $orderId)
                 ->with('error', 'Belum dapat melakukan pembayaran. Tunggu hingga weight diisi oleh admin.');
         }
 
         return redirect()->route('payment.index');
+    }
+
+    /**
+     * Get all orders for display (including those with weight = 1.0)
+     */
+    public function getAllOrdersForDisplay()
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return collect();
+        }
+
+        return Order::with('payment')
+            ->where('user_id', $user->id)
+            ->where('weight', '>', 0)
+            ->latest()
+            ->paginate(10);
     }
 }
