@@ -353,10 +353,16 @@ class OrderController extends Controller
 
                 // Generate Midtrans token for finalized payment
                 try {
+                    Log::info('Starting token generation for order: ' . $order->id);
+                    Log::info('MIDTRANS_SERVER_KEY exists: ' . (env('MIDTRANS_SERVER_KEY') ? 'YES' : 'NO'));
+                    Log::info('MIDTRANS_IS_PRODUCTION: ' . env('MIDTRANS_IS_PRODUCTION', 'not set'));
+
                     Config::$serverKey = env('MIDTRANS_SERVER_KEY');
                     Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', true);
                     Config::$isSanitized = true;
                     Config::$is3ds = true;
+
+                    Log::info('Midtrans config set. Server key length: ' . strlen(Config::$serverKey ?? ''));
 
                     $orderId = 'ORDER-' . $order->id . '-' . uniqid();
 
@@ -391,17 +397,22 @@ class OrderController extends Controller
                         ],
                     ];
 
+                    Log::info('Calling Snap::getSnapToken for order: ' . $order->id . ' with amount: ' . $totalPrice);
                     $snapToken = Snap::getSnapToken($params);
+                    Log::info('Snap token received, length: ' . strlen($snapToken ?? ''));
 
                     $payment->update([
                         'token' => $snapToken,
                         'payment_status' => 'Menunggu Pembayaran', // Change to waiting for payment after token is generated
+                        'updated_at' => $payment->created_at, // Keep it finalized so PaymentController recognizes it
                     ]);
 
-                    Log::info('Token generated successfully for finalized payment order: ' . $order->id);
+                    Log::info('Token generated and saved successfully for finalized payment order: ' . $order->id);
 
                 } catch (\Exception $e) {
                     Log::error('Failed to generate token for finalized payment order ' . $order->id . ': ' . $e->getMessage());
+                    Log::error('Exception details: ' . $e->getFile() . ':' . $e->getLine());
+                    Log::error('Stack trace: ' . $e->getTraceAsString());
                     // Don't fail the entire transaction if token generation fails
                     // The payment will still be finalized, and token can be generated later in PaymentController
                 }
