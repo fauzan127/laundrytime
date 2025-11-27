@@ -48,6 +48,8 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        return redirect()->route('dashboard.index');
+        Auth::login($user);
+
+        return redirect()->route('verification.notice');
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
@@ -43,7 +44,9 @@ Route::middleware('auth')->group(function () {
     Route::get('email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
         $request->fulfill();
 
-        return redirect('/dashboard');
+        Auth::logout();
+
+        return redirect('/login');
     })->middleware(['signed'])->name('verification.verify');
 
     Route::post('email/verification-notification', function (Request $request) {
