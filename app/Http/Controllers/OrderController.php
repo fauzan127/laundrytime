@@ -17,10 +17,21 @@ class OrderController extends Controller
      */
     public function index()
     {
-        // Ambil semua order terbaru
-        $orders = Order::with('items.serviceType')
-                   ->orderBy('created_at', 'desc')
-                   ->paginate(10);
+        // 1. Mulai query dasar dengan eager loading
+        $query = Order::with('items.serviceType', 'items.clothingType') // Tambah clothingType agar lengkap
+        ->orderBy('created_at', 'desc');
+            
+        // 2. Terapkan filtering berdasarkan peran pengguna
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+        // Jika pengguna adalah user biasa (bukan admin),
+        // filter hanya order yang user_id nya sesuai dengan ID user yang sedang login.
+        $query->where('user_id', Auth::id());
+        }
+        
+        // 3. Eksekusi query dengan pagination
+        $orders = $query->paginate(10);
+        
+        // Pastikan nama view sesuai, saya asumsikan 'dashboard.order.index' dari kode Anda
         return view('dashboard.order.index', compact('orders'));
     }
 
