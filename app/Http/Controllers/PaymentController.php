@@ -48,15 +48,30 @@ class PaymentController extends Controller
                 continue;
             }
 
-            // Gunakan token lama jika status masih Belum Dibayar atau Menunggu Pembayaran
-            if ($payment && in_array($payment->payment_status, ['Belum Dibayar', 'Menunggu Pembayaran']) && $payment->token) {
-                $snapTokens[$order->id] = $payment->token;
-                Log::info('Using existing token for order: ' . $order->id);
+            $needsNewToken = false;
+
+            if (!$payment) {
+                $needsNewToken = true;
+                Log::info('Order ' . $order->id . ': No payment record, need new token');
+            } elseif (in_array($payment->payment_status, ['Belum Dibayar', 'Menunggu Pembayaran'])) {
+                if ($payment->total_price != $order->total_price) {
+                    $needsNewToken = true;
+                    Log::info('Order ' . $order->id . ': Price changed from ' . $payment->total_price . ' to ' . $order->total_price . ', need new token');
+                } elseif (!$payment->token) {
+                    $needsNewToken = true;
+                    Log::info('Order ' . $order->id . ': No token, need new token');
+                } else {
+                    // Use existing token
+                    $snapTokens[$order->id] = $payment->token;
+                    Log::info('Using existing token for order: ' . $order->id);
+                    continue;
+                }
+            } else {
+                Log::info('Order ' . $order->id . ': Payment status ' . $payment->payment_status . ', skipping token generation');
                 continue;
             }
 
-            // Generate token baru jika belum ada payment atau status masih Belum Dibayar
-            if (!$payment || $payment->payment_status === 'Belum Dibayar') {
+            if ($needsNewToken) {
                 $orderId = 'ORDER-' . $order->id . '-' . uniqid();
 
                 $params = [
