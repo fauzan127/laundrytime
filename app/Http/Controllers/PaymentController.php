@@ -49,25 +49,26 @@ class PaymentController extends Controller
             }
 
             $needsNewToken = false;
+            $isFinalized = $payment && $payment->created_at->eq($payment->updated_at);
 
             if (!$payment) {
                 $needsNewToken = true;
                 Log::info('Order ' . $order->id . ': No payment record, need new token');
-            } elseif (in_array($payment->payment_status, ['Belum Dibayar', 'Menunggu Pembayaran'])) {
-                if ($payment->total_price != $order->total_price) {
-                    $needsNewToken = true;
-                    Log::info('Order ' . $order->id . ': Price changed from ' . $payment->total_price . ' to ' . $order->total_price . ', need new token');
-                } elseif (!$payment->token) {
-                    $needsNewToken = true;
-                    Log::info('Order ' . $order->id . ': No token, need new token');
-                } else {
-                    // Use existing token
-                    $snapTokens[$order->id] = $payment->token;
-                    Log::info('Using existing token for order: ' . $order->id);
-                    continue;
-                }
+            } elseif ($isFinalized && in_array($payment->payment_status, ['Belum Dibayar', 'Menunggu Pembayaran'])) {
+                // Finalized payment (weight set by admin) that is not paid - always generate new token to ensure correct price
+                $needsNewToken = true;
+                Log::info('Order ' . $order->id . ': Finalized unpaid payment, generating new token');
+            } elseif (in_array($payment->payment_status, ['Belum Dibayar', 'Menunggu Pembayaran']) && $payment->token) {
+                // Non-finalized payment with existing token - use it
+                $snapTokens[$order->id] = $payment->token;
+                Log::info('Using existing token for order: ' . $order->id);
+                continue;
+            } elseif (in_array($payment->payment_status, ['Belum Dibayar', 'Menunggu Pembayaran']) && !$payment->token) {
+                // Non-finalized payment without token - generate new
+                $needsNewToken = true;
+                Log::info('Order ' . $order->id . ': Non-finalized payment without token, need new token');
             } else {
-                Log::info('Order ' . $order->id . ': Payment status ' . $payment->payment_status . ', skipping token generation');
+                Log::info('Order ' . $order->id . ': Payment status ' . ($payment ? $payment->payment_status : 'No Payment') . ', skipping token generation');
                 continue;
             }
 
