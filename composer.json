@@ -8,10 +8,13 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
+        "guzzlehttp/guzzle": "^7.9",
         "laravel/framework": "^11.31",
         "laravel/socialite": "^5.23",
         "laravel/tinker": "^2.9",
+        "mailgun/mailgun-php": "^4.3",
         "midtrans/midtrans-php": "^2.6",
+        "symfony/http-client": "^7.3",
         "symfony/mailgun-mailer": "^7.3"
     },
     "require-dev": {
