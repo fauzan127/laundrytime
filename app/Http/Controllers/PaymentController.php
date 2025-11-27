@@ -55,13 +55,21 @@ class PaymentController extends Controller
                 $needsNewToken = true;
                 Log::info('Order ' . $order->id . ': No payment record, need new token');
             } elseif ($isFinalized && in_array($payment->payment_status, ['Belum Dibayar', 'Menunggu Pembayaran'])) {
-                // Finalized payment (weight set by admin) that is not paid - always generate new token to ensure correct price
-                $needsNewToken = true;
-                Log::info('Order ' . $order->id . ': Finalized unpaid payment, generating new token');
+                // Finalized payment (weight set by admin) that is not paid
+                if ($payment->token) {
+                    // Use existing token if available
+                    $snapTokens[$order->id] = $payment->token;
+                    Log::info('Using existing token for finalized payment order: ' . $order->id);
+                    continue;
+                } else {
+                    // Generate new token if none exists
+                    $needsNewToken = true;
+                    Log::info('Order ' . $order->id . ': Finalized payment without token, generating new token');
+                }
             } elseif (in_array($payment->payment_status, ['Belum Dibayar', 'Menunggu Pembayaran']) && $payment->token) {
                 // Non-finalized payment with existing token - use it
                 $snapTokens[$order->id] = $payment->token;
-                Log::info('Using existing token for order: ' . $order->id);
+                Log::info('Using existing token for non-finalized payment order: ' . $order->id);
                 continue;
             } elseif (in_array($payment->payment_status, ['Belum Dibayar', 'Menunggu Pembayaran']) && !$payment->token) {
                 // Non-finalized payment without token - generate new
