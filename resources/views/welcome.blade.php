@@ -83,10 +83,10 @@
       <p class="mt-6 text-gray-700 text-lg">
         <b>Time Laundry</b> siap membuat pakaianmu bersih, rapi, dan wangi tanpa bikin kamu kehilangan waktu berharga.
       </p>
-      <a href="#services"
+      {{-- <a href="#services"
         class="mt-8 inline-block bg-[#93b771] hover:bg-green-700 text-white px-8 py-4 rounded-lg shadow-lg transition">
         Pesan
-      </a>
+      </a> --}}
     </div>
   </section>
 
