@@ -59,7 +59,7 @@ require __DIR__.'/auth.php';
 
 // Google OAuth login routes (exclude AuthOrAbort403 middleware)
 Route::withoutMiddleware([AuthOrAbort403::class])->group(function () {
-    Route::get('login/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
-    Route::get('login/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
+    Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
+    Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
 });
 
