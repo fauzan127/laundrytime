@@ -76,7 +76,7 @@
                             <span class="text-xs text-red-500">Menunggu Penimbangan</span>
                         @else
                             <span class="text-lg text-green-700">
-                                {{ number_format($order->weight, 0, ',', '.') }} Kg
+                                {{ number_format($order->weight, 1, ',', '.') }} Kg
                             </span>
                         @endif
                         </td>
