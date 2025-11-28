@@ -56,6 +56,12 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
+        Log::info('OrderController@store: Starting order creation', [
+            'user_id' => Auth::id(),
+            'user_role' => Auth::user()->role ?? 'unknown',
+            'request_data' => $request->all()
+        ]);
+
         $rules = [
             'delivery_type' => 'required|in:antar_jemput,pengantaran_pribadi',
             'address' => 'nullable|string|max:255',
@@ -88,11 +94,13 @@ class OrderController extends Controller
 
         if ($validated['delivery_type'] === 'antar_jemput') {
             if (empty($validated['address'])) {
+                Log::error('OrderController@store: Address required for antar_jemput');
                 return back()->withInput()->with('error', 'Alamat wajib diisi untuk layanan Antar Jemput.');
             }
 
             $address = strtolower($validated['address']);
             if (!str_contains($address, 'tuah karya') && !str_contains($address, 'tuahkarya')) {
+                Log::error('OrderController@store: Address not in Tuah Karya', ['address' => $address]);
                 return back()->withInput()->with('error', 'Alamat harus berada di area Tuah Karya untuk layanan Antar Jemput.');
             }
         }
@@ -106,6 +114,12 @@ class OrderController extends Controller
             $customerPhone = Auth::user()->role === 'admin'
                 ? $validated['customer_phone']
                 : Auth::user()->phone;
+
+            Log::info('OrderController@store: Creating order', [
+                'customer_name' => $customerName,
+                'customer_phone' => $customerPhone,
+                'user_id' => Auth::id()
+            ]);
 
             $order = Order::create([
                 'customer_name' => $customerName,
@@ -122,6 +136,8 @@ class OrderController extends Controller
                 'order_date' => now(),
                 'weight' => 0,
             ]);
+
+            Log::info('OrderController@store: Order created', ['order_id' => $order->id]);
 
             $totalPrice = 0;
             $totalWeight = 0;
@@ -183,9 +199,16 @@ class OrderController extends Controller
 
             DB::commit();
 
+            Log::info('OrderController@store: Transaction committed successfully', ['order_id' => $order->id]);
+
             return redirect()->route('order.index')->with('success', 'Pesanan berhasil dibuat!');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('OrderController@store: Transaction rolled back', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => Auth::id()
+            ]);
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }

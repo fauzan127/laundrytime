@@ -61,7 +61,7 @@
                 <div class="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 relative rounded-l-3xl"
                     style="background-color: rgba(169, 201, 125, 0.9);">
 
-                    <div class="relative w-full sm:max-w-md px-6 py-6 border overflow-hidden sm:rounded-lg z-10">
+                    <div class="relative w-full sm:max-w-md px-6 py-6 overflow-hidden sm:rounded-lg z-10">
                         <div class="flex justify-center">
                             <a>
                                 <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
